@@ -1,0 +1,55 @@
+Paddles: need
+    Move Speed
+    movement in one axis
+    movement limits (stay on playing field)
+    Size (Lenght,Widh,Height)
+    collision with ball
+
+Ball: needs
+{
+    Min Speed
+    Max Speed
+    OR
+    fixed Speed
+}
+    visual form     (Square/Ball/somethign else)
+    collision form  (Square/Ball/somethign else)
+    Size
+
+If rotation is added:
+    Rotation
+    Friction
+
+
+Gameplay: possibilities
+Wall bounce angles:
+    {in angle = out angle
+    OR
+    out angle is impacted by ball rotation}
+
+Paddle bounce angle:
+    {in angle = out angle
+    OR
+    out angle is impacted by paddle Speed}
+
+
+Dimensions:
+playing field has to be same aspect ratio globally
+(different screen cannot have different playing field aspect ratio)
+scaling the field is the option to make game viewable on many devices
+
+Speeds:
+Opject speeds have to be in relation to playing field
+(moving paddle from bottom to top should always take same time)
+
+
+Ball movement:
+M*X+N (straight line funciton)
+Bounce angles:
+(no spin)
+alpha = beta (in angle = out angle)
+(spin)
+beta = alpha + (spin_direction*spin_spin_speed)*friction
+                    ^                             ^
+                 -1 or +1                        0-1
+new spin = spin_speed*friction
