@@ -10,6 +10,7 @@ services:
       - ./.env.prod
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
     depends_on:
       - db
   db:
@@ -24,9 +25,11 @@ services:
       - 8000:80
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
     depends_on:
       - web
 
 volumes:
   postgres_data:
   static_volume:
+  media_volume:
