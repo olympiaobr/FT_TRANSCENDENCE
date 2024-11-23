@@ -1,3 +1,7 @@
-<h2>{{ profile.user.username }}</h2>
-<p>Display Name: {{ profile.display_name }}</p>
-<img src="{{ profile.avatar.url }}" alt="Avatar">
+<h2>Welcome, {{ user.username }}</h2>
+<p>Your Profile:</p>
+<ul>
+    <li>Username: {{ profile.user.username }}</li>
+    <li>Display Name: {{ profile.display_name }}</li>
+</ul>
+<a href="{% url 'logout' %}">Logout</a>

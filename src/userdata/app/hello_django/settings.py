@@ -42,8 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    "upload",
-    "users",
+    'upload',
+    'users',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +58,22 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'hello_django.urls'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        },
+    },
+}
 
 TEMPLATES = [
     {
@@ -134,13 +151,16 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 # Redirect after successful login
-LOGIN_REDIRECT_URL = "/users/profile/"
+LOGIN_REDIRECT_URL = "/users/profile/"  # User is redirected to their profile page after login
 
 # Redirect after successful logout
-LOGOUT_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"  # Redirect to the home page after logout
 
 # URL where unauthenticated users are redirected
-LOGIN_URL = "/login/"  # Optional if your login URL is already /login/
+LOGIN_URL = "/users/login/"  # Ensures proper redirection for @login_required views
+
+# Redirect after successful signup
+SIGNUP_REDIRECT_URL = "/users/profile/"
 
 
 # Default primary key field type
