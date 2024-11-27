@@ -16,7 +16,16 @@
     </script>
 </head>
 <body>
+  <header>
+    <nav>
+      <button id="login-button" onclick="showLoginForm()">Login</button>
+      <button id="signup-button" onclick="showSignupForm()">Signup</button>
+      <button id="logout-button" style="display:none;" onclick="logout()">Logout</button>
+      <button id="profile-button" style="display:none;" onclick="showProfile()">Profile</button>
+  </nav>
+  </header>
 	<canvas id="three-canvas"></canvas>
   <script type="module" src="./js/main.js"></script>
+  <script type="module" src="./js/index.js"></script>
 </body>
 </html>

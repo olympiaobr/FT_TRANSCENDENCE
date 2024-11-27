@@ -150,16 +150,16 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 EXAMPLE_URL = "/example/"
 
 # Redirect after successful login
-LOGIN_REDIRECT_URL = "/users/profile/"  # User is redirected to their profile page after login
+LOGIN_REDIRECT_URL = "/"  # User is redirected to their profile page after login
 
 # Redirect after successful logout
 LOGOUT_REDIRECT_URL = "/"  # Redirect to the home page after logout
 
 # URL where unauthenticated users are redirected
-LOGIN_URL = "/users/login/"  # Ensures proper redirection for @login_required views
+#LOGIN_URL = "/users/login/"  # Ensures proper redirection for @login_required views
 
 # Redirect after successful signup
-SIGNUP_REDIRECT_URL = "/users/profile/"
+SIGNUP_REDIRECT_URL = "/"
 
 
 # Default primary key field type

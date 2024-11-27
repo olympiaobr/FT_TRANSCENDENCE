@@ -26,9 +26,9 @@ from upload.views import image_upload, example_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", image_upload, name="upload"),
-    path('user-api/users/', include('users.urls')),
-    path("user-api/login/", LoginView.as_view(template_name="registration/login.html"), name="login"),
-    path("user-api/logout/", LogoutView.as_view(next_page="/"), name="logout"),
+    path('user-api/', include('users.urls')),
+    #path("user-api/login/", LoginView.as_view(template_name="registration/login.html"), name="login"),
+    #path("user-api/logout/", LogoutView.as_view(next_page="/"), name="logout"),
     path("user-api/example", example_view, name="example"),
 ]
 
