@@ -9,13 +9,13 @@ services:
     expose:
       - "8001"
 
-  gameplay:
-    build: ./gameplay
-    container_name: gameplay
-    networks:
-      - app-network
-    expose:
-      - "8002"
+  #gameplay:
+  #  build: ./gameplay
+  #  container_name: gameplay
+  #  networks:
+  #    - app-network
+  #  expose:
+  #    - "8002"
 
   nginx:
     build: ./nginx
@@ -24,9 +24,36 @@ services:
       - "8000:80"  
     depends_on:
       - test
+      - userdata
+    networks:
+      - app-network
+
+  userdata:
+    build:
+      context: ./userdata/app
+      dockerfile: Dockerfile.prod
+    command: gunicorn hello_django.wsgi:application --bind 0.0.0.0:8003
+    expose:
+      - "8003"
+    env_file:
+      - ./userdata/.env.prod
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./userdata/.env.prod.db
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:

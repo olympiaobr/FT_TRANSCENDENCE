@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView, LogoutView
 
 
-from upload.views import image_upload
+from upload.views import image_upload, example_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,7 +29,7 @@ urlpatterns = [
     path('user-api/users/', include('users.urls')),
     path("user-api/login/", LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("user-api/logout/", LogoutView.as_view(next_page="/"), name="logout"),
-
+    path("user-api/example", example_view, name="example"),
 ]
 
 if bool(settings.DEBUG):

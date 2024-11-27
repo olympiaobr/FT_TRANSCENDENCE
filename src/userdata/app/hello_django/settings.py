@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY", default="change_me")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost"])
+ALLOWED_HOSTS = ['*'] #env.list("DJANGO_ALLOWED_HOSTS", default=["localhost"])
 
 # Application definition
 
@@ -147,8 +147,7 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "mediafiles"
+EXAMPLE_URL = "/example/"
 
 # Redirect after successful login
 LOGIN_REDIRECT_URL = "/users/profile/"  # User is redirected to their profile page after login
