@@ -28,3 +28,41 @@ body {
     background-color: #0056b3;
     transform: translateX(-50%) scale(1.05);
 }
+
+header nav {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+}
+
+header nav button {
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+header nav button:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    header nav {
+        top: 5px;
+        left: 5px;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    header nav button {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+}

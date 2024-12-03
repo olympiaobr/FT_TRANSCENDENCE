@@ -14,7 +14,11 @@ export async function login(event) {
 
         if (response.ok) {
             alert('Login successful!');
-            loadProfile(); // load profile dynamically
+            document.getElementById('login-button').style.display = 'none';
+            document.getElementById('signup-button').style.display = 'none';
+            document.getElementById('logout-button').style.display = 'inline-block';
+            document.getElementById('profile-button').style.display = 'inline-block';
+            loadProfile(); // Load profile data dynamically
         } else {
             const errorData = await response.json();
             alert(errorData.error || 'Login failed');
@@ -57,7 +61,7 @@ export async function logout() {
 
         if (response.ok) {
             alert('Logged out successfully!');
-            resetNavigation();
+            resetNavigation(); // Reset to initial state
         } else {
             alert('Error logging out.');
         }

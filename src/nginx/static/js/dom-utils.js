@@ -11,12 +11,14 @@ export async function loadProfile() {
         if (response.ok) {
             const profileData = await response.json();
             showProfileSection(profileData);
-        } else {
+        } else if (response.status === 401) {
             alert('Unauthorized. Please log in.');
             showLoginForm();
+        } else {
+            console.error('Unexpected error:', response.status);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error loading profile:', error);
     }
 }
 
