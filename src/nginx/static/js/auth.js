@@ -44,13 +44,19 @@ export async function signup(event) {
             alert('Signup successful! Please log in.');
             showLoginForm();
         } else {
-            const errorData = await response.json();
-            alert(errorData.error || 'Signup failed');
+            const errorData = await response.json().catch(() => null);
+            if (errorData) {
+                alert(errorData.error || 'Signup failed');
+            } else {
+                alert('Unexpected error occurred.');
+            }
         }
     } catch (error) {
         console.error('Error:', error);
+        alert('Could not connect to the server. Please try again later.');
     }
 }
+
 
 export async function logout() {
     try {

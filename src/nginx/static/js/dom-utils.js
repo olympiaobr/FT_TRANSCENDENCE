@@ -51,7 +51,7 @@ export function showLoginForm() {
 
     document.getElementById('signup-link').addEventListener('click', showSignupForm);
     const loginForm = document.getElementById('login-form');
-    loginForm.addEventListener('submit', login); // Make sure `login` is imported in your index.js
+    loginForm.addEventListener('submit', login);
 }
 
 export function showSignupForm() {

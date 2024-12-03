@@ -14,18 +14,28 @@ logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 def signup(request):
+    logger.info("Signup request received.")
     username = request.data.get('username')
     password = request.data.get('password')
     email = request.data.get('email')
 
     if not username or not password or not email:
+        logger.error("Invalid signup data.")
         return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(username=username).exists():
+        logger.error(f"Username already exists: {username}")
         return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = User.objects.create_user(username=username, password=password, email=email)
-    return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+    try:
+        user = User.objects.create_user(username=username, password=password, email=email)
+        logger.info(f"User created: {username} (ID: {user.id})")
+        return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+    except IntegrityError as e:
+        logger.error(f"IntegrityError during signup: {e}")
+        return Response({"error": "An error occurred during signup."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 @api_view(['POST'])
 def login_view(request):

@@ -21,7 +21,7 @@ services:
     build: ./nginx
     container_name: nginx
     ports:
-      - "8000:80"  
+      - "8000:80"
     depends_on:
       - test
       - userdata
@@ -32,9 +32,12 @@ services:
     build:
       context: ./userdata/app
       dockerfile: Dockerfile.prod
-    command: gunicorn hello_django.wsgi:application --bind 0.0.0.0:8003
-    expose:
-      - "8003"
+    command: >
+      sh -c "python manage.py makemigrations &&
+           python manage.py migrate &&
+           gunicorn hello_django.wsgi:application --bind 0.0.0.0:8000"
+      expose:
+      - "8000"
     env_file:
       - ./userdata/.env.prod
     depends_on:
