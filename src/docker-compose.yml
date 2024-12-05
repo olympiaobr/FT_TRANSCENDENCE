@@ -37,7 +37,7 @@ services:
       expose:
       - "8000"
     env_file:
-      - ./userdata_new/.env
+      - ./userdata/.env
     depends_on:
       - db
     networks:
