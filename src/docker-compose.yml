@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   test:
     build: ./test
@@ -30,32 +28,37 @@ services:
 
   userdata:
     build:
-      context: ./userdata/app
-      dockerfile: Dockerfile.prod
+      context: ./userdata_new/
+      dockerfile: Dockerfile
     command: >
       sh -c "python manage.py makemigrations &&
            python manage.py migrate &&
-           gunicorn hello_django.wsgi:application --bind 0.0.0.0:8000"
+           gunicorn app.wsgi:application --bind 0.0.0.0:8000"
       expose:
       - "8000"
     env_file:
-      - ./userdata/.env.prod
+      - ./userdata_new/.env
     depends_on:
       - db
     networks:
       - app-network
+      - userdata-network
 
   db:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./userdata/.env.prod.db
+    environment:
+      - POSTGRES_USER=new_user
+      - POSTGRES_PASSWORD=new_password
+      - POSTGRES_DB=userdata_db
     networks:
-      - app-network
+      - userdata-network
 
 networks:
   app-network:
+    driver: bridge
+  userdata-network:
     driver: bridge
 
 volumes:
