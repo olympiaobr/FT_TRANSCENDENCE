@@ -28,7 +28,7 @@ services:
 
   userdata:
     build:
-      context: ./userdata_new/
+      context: ./userdata/
       dockerfile: Dockerfile
     command: >
       sh -c "python manage.py makemigrations &&
