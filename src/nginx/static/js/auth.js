@@ -13,12 +13,7 @@ export async function login(event) {
         });
 
         if (response.ok) {
-            alert('Login successful!');
-            document.getElementById('login-button').style.display = 'none';
-            document.getElementById('signup-button').style.display = 'none';
-            document.getElementById('logout-button').style.display = 'inline-block';
-            document.getElementById('profile-button').style.display = 'inline-block';
-            loadProfile(); // Load profile data dynamically
+            window.location.href = '/';
         } else {
             const errorData = await response.json();
             alert(errorData.error || 'Login failed');
@@ -57,17 +52,22 @@ export async function signup(event) {
     }
 }
 
-
 export async function logout() {
     try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const response = await fetch('/user-api/logout/', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
             credentials: 'include',
         });
 
         if (response.ok) {
+            resetNavigation();
             alert('Logged out successfully!');
-            resetNavigation(); // Reset to initial state
+            window.location.href = '/';
         } else {
             alert('Error logging out.');
         }
@@ -75,4 +75,5 @@ export async function logout() {
         console.error('Error:', error);
     }
 }
+
 

@@ -68,5 +68,3 @@ def profile_view(request):
 
 def test_view(request):
     return HttpResponse("<html>Hello, World!</html>")
-
-# Create your views here.
