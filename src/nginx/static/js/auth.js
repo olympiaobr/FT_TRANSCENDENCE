@@ -1,4 +1,30 @@
-import { loadProfile, resetNavigation, showLoginForm } from './dom-utils.js';
+import { showLoginForm } from './dom-utils.js';
+
+function getCSRFToken() {
+    let csrfToken = null;
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        if (cookie.trim().startsWith('csrftoken=')) {
+            csrfToken = cookie.trim().substring('csrftoken='.length);
+        }
+    }
+    return csrfToken;
+}
+
+function postAPI(url, data) {
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(data),
+        credentials: 'include'
+    }).then(response => {
+        if (!response.ok) throw new Error('Response not OK');
+        return response.json();
+    });
+}
 
 export async function login(event) {
     event.preventDefault();
@@ -6,20 +32,15 @@ export async function login(event) {
     const data = Object.fromEntries(formData.entries());
 
     try {
-        const response = await fetch('/user-api/login/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-
-        if (response.ok) {
+        const response = await postAPI('/user-api/login/', data);
+        if (response.message) {
             window.location.href = '/';
         } else {
-            const errorData = await response.json();
-            alert(errorData.error || 'Login failed');
+            alert(response.error || 'Login failed');
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Login error:', error);
+        alert('Login failed: ' + error.message);
     }
 }
 
@@ -29,51 +50,30 @@ export async function signup(event) {
     const data = Object.fromEntries(formData.entries());
 
     try {
-        const response = await fetch('/user-api/signup/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-
-        if (response.ok) {
+        const response = await postAPI('/user-api/signup/', data);
+        if (response.message === 'User created successfully') {
             alert('Signup successful! Please log in.');
             showLoginForm();
         } else {
-            const errorData = await response.json().catch(() => null);
-            if (errorData) {
-                alert(errorData.error || 'Signup failed');
-            } else {
-                alert('Unexpected error occurred.');
-            }
+            alert(response.error || 'Signup failed');
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Could not connect to the server. Please try again later.');
+        console.error('Signup error:', error);
+        alert('Signup failed: ' + error.message);
     }
 }
 
-export async function logout() {
+export async function logout(event) {
     try {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const response = await fetch('/user-api/logout/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            credentials: 'include',
-        });
-
-        if (response.ok) {
-            resetNavigation();
-            alert('Logged out successfully!');
+        const response = await postAPI('/user-api/logout/', {});
+        if (response.message) {
             window.location.href = '/';
         } else {
-            alert('Error logging out.');
+            alert('Failed to log out.');
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Logout error:', error);
+        alert('Logout failed: ' + error.message);
     }
 }
-
 

@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from .models import Profile
 from .serializers import UserSerializer, ProfileSerializer
+from django.middleware.csrf import get_token
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,9 @@ def profile_view(request):
     try:
         profile = Profile.objects.get(user=request.user)
         serializer = ProfileSerializer(profile)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = serializer.data
+        data['csrf_token'] = get_token(request)
+        return Response(data, status=status.HTTP_200_OK)
     except Profile.DoesNotExist:
         return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
 

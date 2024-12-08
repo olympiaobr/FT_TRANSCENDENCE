@@ -31,7 +31,10 @@ function showProfileSection(profileData) {
             <li>Username: ${profileData.user.username}</li>
             <li>Display Name: ${profileData.display_name}</li>
         </ul>
-        <button id="logout-button">Logout</button>
+        <form id="logout-form">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${profileData.csrf_token || ''}">
+            <button id="logout-button">Logout</button>
+        </form>
     `;
 
     document.getElementById('logout-button').addEventListener('click', logout);
@@ -69,7 +72,7 @@ export function showSignupForm() {
 
     document.getElementById('login-link').addEventListener('click', showLoginForm);
     const signupForm = document.getElementById('signup-form');
-    signupForm.addEventListener('submit', signup); // Make sure `signup` is imported in your index.js
+    signupForm.addEventListener('submit', signup);
 }
 
 export function resetNavigation() {
