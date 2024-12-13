@@ -1,6 +1,6 @@
 import { showLoginForm } from './dom-utils.js';
 
-function getCSRFToken() {
+export function getCSRFToken() {
     let csrfToken = null;
     const cookies = document.cookie.split(';');
     for (let cookie of cookies) {
@@ -11,7 +11,7 @@ function getCSRFToken() {
     return csrfToken;
 }
 
-function postAPI(url, data) {
+export function postAPI(url, data) {
     return fetch(url, {
         method: 'POST',
         headers: {

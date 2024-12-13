@@ -1,9 +1,60 @@
-<h2>Welcome, <span id="username"></span></h2>
-<p>Your Profile:</p>
-<ul>
-    <li>Username: <span id="profile-username"></span></li>
-    <li>Display Name: <span id="profile-display-name"></span></li>
-</ul>
-<a href="logout.html">Logout</a>
-<script src="profile.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+    <header>
+        <h1>Your Profile</h1>
+        <nav>
+            <button id="home-button">Home</button>
+            <button id="logout-button">Logout</button>
+            <button id="settings-button">Settings</button>
+        </nav>
+    </header>
+    <main>
+        <section id="profile-info">
+            <div id="avatar-container">
+                <img id="avatar" src="./images/default-avatar.png" alt="User Avatar">
+                <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                <button id="change-avatar-btn">Change Avatar</button>
+            </div>
+            <h2>Welcome, <span id="username"></span></h2>
+            <p>Display Name: <span id="display-name"></span></p>
+            <div id="user-stats">
+                <h3>Stats</h3>
+                <p>Wins: <span id="wins"></span></p>
+                <p>Losses: <span id="losses"></span></p>
+            </div>
+        </section>
+        <section id="friends-list">
+            <h3>Friends</h3>
+            <ul id="friends"></ul>
+            <input type="text" id="friend-username" placeholder="Enter friend's username">
+            <button id="add-friend-btn">Add Friend</button>
+        </section>
+        <section id="match-history">
+            <h3>Match History</h3>
+            <table id="match-history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Opponent</th>
+                        <th>Result</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="match-history-body"></tbody>
+            </table>
+        </section>
+    </main>
+    <script type="module" src="./js/auth.js"></script>
+    <script type="module" src="./js/profile.js"></script>
+
+</body>
+</html>
+
 

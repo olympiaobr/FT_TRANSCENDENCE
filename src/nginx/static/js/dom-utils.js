@@ -1,4 +1,4 @@
-import { login, signup, logout } from './auth.js';
+import { login, signup } from './auth.js';
 
 export async function loadProfile() {
     try {
@@ -9,8 +9,7 @@ export async function loadProfile() {
         });
 
         if (response.ok) {
-            const profileData = await response.json();
-            showProfileSection(profileData);
+            window.location.href = '/profile.html';
         } else if (response.status === 401) {
             alert('Unauthorized. Please log in.');
             showLoginForm();
@@ -20,24 +19,6 @@ export async function loadProfile() {
     } catch (error) {
         console.error('Error loading profile:', error);
     }
-}
-
-function showProfileSection(profileData) {
-    const mainContent = document.querySelector('body');
-    mainContent.innerHTML = `
-        <h2>Welcome, ${profileData.user.username}</h2>
-        <p>Your Profile:</p>
-        <ul>
-            <li>Username: ${profileData.user.username}</li>
-            <li>Display Name: ${profileData.display_name}</li>
-        </ul>
-        <form id="logout-form">
-            <input type="hidden" name="csrfmiddlewaretoken" value="${profileData.csrf_token || ''}">
-            <button id="logout-button">Logout</button>
-        </form>
-    `;
-
-    document.getElementById('logout-button').addEventListener('click', logout);
 }
 
 export function showLoginForm() {

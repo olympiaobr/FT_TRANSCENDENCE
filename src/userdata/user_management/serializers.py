@@ -8,8 +8,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
+    friends = UserSerializer(many=True, read_only=True)
 
     class Meta:
         model = Profile
-        fields = ['user', 'display_name', 'avatar']
+        fields = ['user', 'display_name', 'avatar', 'friends']
+
+    def update(self, instance, validated_data):
+        instance.display_name = validated_data.get('display_name', instance.display_name)
+        avatar = validated_data.get('avatar')
+        if avatar:
+            instance.avatar.save(avatar.name, avatar)
+        instance.save()
+        return instance

@@ -141,6 +141,10 @@ USE_TZ = True
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]
 
+CSRF_COOKIE_HTTPONLY = False
+
+CSRF_COOKIE_SECURE = False
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
