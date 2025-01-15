@@ -109,5 +109,3 @@ def add_friend_view(request):
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-def test_view(request):
-    return HttpResponse("<html>Hello, World!</html>")

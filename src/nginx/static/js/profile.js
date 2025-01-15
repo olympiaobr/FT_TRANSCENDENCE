@@ -84,7 +84,11 @@ function uploadAvatar(event) {
             method: 'POST',
             body: formData,
             credentials: 'include',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
         })
+
         .then(response => response.json())
         .then(data => {
             if(data.message) {
