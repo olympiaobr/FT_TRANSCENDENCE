@@ -54,25 +54,28 @@
   }
 
 .game-selector button {
-  width: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   aspect-ratio: 4 / 1;
   background-color: #ffba26;
   border: 0 solid #E5E7EB;
   box-sizing: border-box;
   color: #000000;
-  font-size: clamp(0.6rem, 1.6vw, 12rem); 
+  font-size: clamp(1.6rem, 0.049rem + 2vw, 4rem);
   font-weight: 700;
   justify-content: center;
   line-height: 1.75rem;
-  padding: 0.75rem 1.65rem;
+  padding: 2rem 4rem;
   position: relative;
   text-align: center;
   text-decoration: none #000000 solid;
   text-decoration-thickness: auto;
-  max-width: 460px;
+  /* max-width: 460px; */
   position: relative;
   cursor: pointer;
   transform: rotate(-2deg);
+  white-space: nowrap;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -142,7 +145,7 @@
   padding: 10px;
   align-items: center;
   width: 50%;
-  aspect-ratio: 1 / 10;
+  /* aspect-ratio: 1 / 10; */
   /* min-width: 200px; */
 }
 
@@ -156,26 +159,74 @@
   object-fit: cover;
 }
 
-.player_button {
-  background-color: gray;
+
+
+#lobby {
+  height: 80%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
 }
 
-.player_selected {
-  background-color: green;
+#lobby > div {
+  width: 80%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
-.start-button {
-  background-color: gray;
+#lobby > div > button {
+  aspect-ratio: 3 / 1;
+  position: relative;
+  background-color: inherit;
+  color: #E5E7EB;
 }
 
-.start-enabled {
-  background-color: blue;
+#lobby > div > button:hover {
+  background-color: #1d1d1d;
 }
 
-/* button 53 media query
-@media (min-width: 768px) {
-  .button-53 {
+#lobby > div > button > p {
+  font-size: clamp(1.6rem, 0.049rem + 2vw, 4rem);
+  position: absolute;
+  top: 0;
+  transform: translateY(-1.5em);
+}
+
+#lobby > div > button.player_selected {
+  background-color:#1d1d1d;
+}
+
+#lobby > button.start_button {
+  font-size: clamp(1rem, 0.049rem + 1.4vw, 3rem);
+  visibility: hidden;
+}
+
+#lobby > button.start_enabled {
+  visibility: visible;
+}
+
+#game {
+  height: 100%;
+  width: 100%;
+  position: relative
+}
+
+#score {
+  position: absolute;
+  z-index: 2;
+}
+
+/* .player_button {
+  cursor: pointer;
+  width: 20%;
+  padding: 10px;
+  } */
+  
+  /* button 53 media query
+  @media (min-width: 768px) {
+    .button-53 {
     padding: .75rem 3rem;
     font-size: 1.25rem;
-  }
+    }
 } */

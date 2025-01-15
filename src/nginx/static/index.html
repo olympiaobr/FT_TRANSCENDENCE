@@ -45,10 +45,10 @@
           <p>Local</p>
         </div>
         <div class="game-selector" id="online">
-          <div class="online active">
+          <div class="online active" id="option-choose">
             <button id="prepare-lobby">Create Lobby</button>
             <button id="list-lobbies">Join Lobby</button>
-            <img src="/svg/lock.svg" alt="locked">
+            <!-- <img src="/svg/lock.svg" alt="locked"> -->
           </div>
           <div class="online" id="lobby-list"><p>test</p></div>
           <form class="online" id="lobby-form">
@@ -63,32 +63,36 @@
             </div>
             <button type="submit">Create</button>
           </form>
+          <div class="online" id="lobby">
+            <h2 id="lobby-header">Lobby: </h2>
+            <div>
+              <button class="player_button" id="p1"><p>P1</p></button>
+              <button class="player_button" id="p2"><p>P2</p></button>
+            </div>
+            <button class="start_button" id="start_game">Start Game</button>
+          </div>
+          <div class="online" id="game"><p id="score">Left: 0 | Right: 0</p><canvas id="game-canvas"></canvas></div>
         </div>
         <div class="game-selector" id="tournament">
           <p>Tournament Mode</p>
         </div>
-        <div class="game-selector" id="lobby">
-          <div class="player_button" id="p1"><p>P1</p></div>
-          <div class="player_button" id="p2"><p>P2</p></div>
-          <div class="start_button" id="start_game"><p>Start Game</p></div>
-        </div>
       </div>
     </div>
-    <button id="test-api">Test API</button>
+
+    <!-- <button id="test-api">Test API</button> -->
     <pre id="output"></pre>
-    <canvas id="three-canvas"></canvas>
+    <!-- <canvas id="three-canvas"></canvas>  -->
   </main>
-
-  <script type="module" src="./js/game_3d.js"></script>
-  <script src="./js/game-modes.js"></script>
+	
+  <!-- <script type="module" src="./js/game_3d.js"></script> -->
+  <!-- <script type="module" src="./js/auth.js"></script> -->
+  <script type="module" src="./js/sockets.js"></script>
+  <script type="module" src="./js/game-handling.js"></script>
+  <script type="module" src="./js/lobby-creation.js"></script>
+  <script type="module" src="./js/lobby-handling.js"></script>
+  <script type="module" src="./js/game-modes.js"></script>
   <script type="module" src="./js/index.js"></script>
-  <script>
-    document.getElementById('test-api').addEventListener('click', async () => {
-        const response = await fetch('/lobby/all/');
-        const data = await response.json();
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-    });
-  </script>
-
+<!--   <script type="module" src="./js/profile.js"></script>
+ -->
 </body>
 </html>

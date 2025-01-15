@@ -7,8 +7,9 @@ from django.utils.crypto import get_random_string
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     display_name = models.CharField(max_length=50, unique=True)
-    avatar = models.ImageField(upload_to="avatars/", default="avatars/default.png")
+    avatar = models.ImageField(upload_to="avatars/", default="images/default_avatar.jpeg")
     friends = models.ManyToManyField("self", blank=True)
+    stats = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.user.username

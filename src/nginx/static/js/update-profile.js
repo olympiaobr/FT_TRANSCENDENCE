@@ -16,10 +16,18 @@ function loadCurrentUserData() {
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById('display-name').value = data.displayName;
+        document.getElementById('display-name').value = data.display_name || '';
+        if (data.avatar) {
+            document.getElementById('avatar-img').src = data.avatar;
+        } else {
+            document.getElementById('avatar-img').src = '/static/images/default_avatar.jpeg'; // Update to JPEG
+        }
     })
-    .catch(error => console.error('Failed to load user data:', error));
+    .catch(error => {
+        console.error('Failed to load user data:', error);
+    });
 }
+
 
 function updateUserData() {
     const formData = new FormData(document.getElementById('update-form'));

@@ -1,5 +1,5 @@
 ifneq ($(shell command -v docker compose 2>/dev/null),)
-DOCKER_COMPOSE = docker-compose
+DOCKER_COMPOSE = docker compose
 else ifneq ($(shell command -v docker-compose 2>/dev/null),)
 DOCKER_COMPOSE = docker-compose
 else
@@ -10,9 +10,10 @@ COMPOSE = -f ./src/docker-compose.yml
 COMPOSE_CMD = ${DOCKER_COMPOSE} ${COMPOSE} ${ENV_FILE}
 
 all:
-	@${COMPOSE_CMD} build --no-cache
+	docker run --rm -v /home/${USER}/data:/parentdir alpine sh -c "rm -rf /parentdir/lobby_db"
 	mkdir -p /home/${USER}/data/lobby_db
 	mkdir -p /home/${USER}/data/userdata_db
+	@${COMPOSE_CMD} build --no-cache
 
 up:
 	@${COMPOSE_CMD} up || true

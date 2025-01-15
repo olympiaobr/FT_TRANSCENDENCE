@@ -1,5 +1,5 @@
 FROM nginx
 
-RUN rm /etc/nginx/conf.d/default.conf
+RUN rm -f /etc/nginx/conf.d/*
 
 COPY ./config /etc/nginx/conf.d/

@@ -9,12 +9,12 @@ from .serializers import GameDataSerializer
 from .models import GameData
 from rest_framework.decorators import api_view
 
-
 logger = logging.getLogger(__name__)
 
 class GameDataCreate(generics.CreateAPIView):
     # API endpoint that allows creation of a new customer
-    queryset = GameData.objects.all(),
+    logger.info("Game creation request recieved")
+    queryset = GameData.objects.all()
     serializer_class = GameDataSerializer
 
 

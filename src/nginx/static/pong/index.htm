@@ -68,9 +68,9 @@
 
             // Clear the canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = 'white';
 
             // Draw paddles
-            context.fillStyle = 'white';
             context.fillRect(10, normalizedPaddleL_Y, paddleWidth, paddleHeight); // Left paddle
             context.fillRect(canvas.width - 20, normalizedPaddleR_Y, paddleWidth, paddleHeight); // Right paddle
 

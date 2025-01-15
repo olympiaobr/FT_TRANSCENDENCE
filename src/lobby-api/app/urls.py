@@ -26,5 +26,7 @@ urlpatterns = [
     path('lobby/player_joined/<int:lobby_id>/', views.player_joined),
     path('lobby/player_left/<int:lobby_id>/<str:user_name>/', views.player_left),
     path('lobby/delete/<int:lobby_id>/', views.delete_lobby_entry),
-    path('lobby/<str:player>/<int:lobby_id>/<str:user_name>/', views.player_entry),
+    path('lobby/players/<int:lobby_id>/', views.get_players),
+    path('lobby/player_select/<str:player>/<int:lobby_id>/<str:user_name>/', views.select_player),
+    path('lobby/player_deselect/<str:player>/<int:lobby_id>/', views.desselect_player),
 ]
