@@ -16,7 +16,7 @@ def defaultStats():
 class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	display_name = models.CharField(max_length=50, unique=True)
-	avatar = models.ImageField(upload_to="avatars/", default="avatars/default.png")
+	avatar = models.ImageField(upload_to="avatars/", default="images/default_avatar.jpeg")
 	friends = models.ManyToManyField("self", blank=True)
 	stats = models.JSONField(default=defaultStats)
 

@@ -78,6 +78,12 @@ def update_profile_view(request):
     profile = Profile.objects.get(user=request.user)
     serializer = ProfileSerializer(profile, data=request.data, partial=True)
     if serializer.is_valid():
+        user = profile.user
+        email = request.data.get('email')
+        if email:
+            user.email = email
+            user.save()
+
         serializer.save()
         return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
     else:
