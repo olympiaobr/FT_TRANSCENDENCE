@@ -45,12 +45,57 @@ function fetchProfileData() {
             document.getElementById('avatar').src = data.avatar_url;
         }
         updateFriendsList(data.friends);
+
+        add2FAButtons(data.user.twoFA_active);
+
     })
     .catch(error => {
         console.error('Error fetching profile data:', error);
         alert('Error loading profile information.');
     });
 }
+
+export async function resendOTP() {
+    try {
+        const response = await postAPI('/user-api/resend-otp/', {});
+        if (response.message) {
+            alert('OTP resent successfully.');
+        } else {
+            alert(response.error || 'Failed to resend OTP');
+        }
+    } catch (error) {
+        console.error('Resend OTP error:', error);
+        alert('Error resending OTP: ' + error.message);
+    }
+}
+
+export function add2FAButtons() {
+    const mainContent = document.querySelector('body');
+    mainContent.innerHTML += `
+        <button id="enable-2fa">Enable 2FA</button>
+        <button id="disable-2fa">Disable 2FA</button>
+        <button id="resend-otp">Resend OTP</button>
+    `;
+
+    document.getElementById('enable-2fa').addEventListener('click', () => toggle2FA(true));
+    document.getElementById('disable-2fa').addEventListener('click', () => toggle2FA(false));
+    document.getElementById('resend-otp').addEventListener('click', resendOTP);
+}
+
+export async function toggle2FA(enable) {
+    try {
+        const response = await postAPI('/user-api/toggle/', { enable });
+        if (response.message) {
+            alert(response.message);
+        } else {
+            alert(response.error || 'Failed to toggle 2FA');
+        }
+    } catch (error) {
+        console.error('Toggle 2FA error:', error);
+        alert('Error toggling 2FA: ' + error.message);
+    }
+}
+
 
 function updateFriendsList(friends) {
     const friendsList = document.getElementById('friends');
@@ -61,6 +106,7 @@ function updateFriendsList(friends) {
         friendsList.appendChild(li);
     });
 }
+
 
 function getGameStatus(score, playerIdx){
 	const gameStatusCell = document.createElement('td');

@@ -4,7 +4,10 @@ export async function loadProfile() {
     try {
         const response = await fetch('/user-api/profile/', {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
             credentials: 'include',
         });
 
