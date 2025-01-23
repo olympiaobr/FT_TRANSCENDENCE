@@ -1,4 +1,4 @@
-import { login, signup } from './auth.js';
+import { login, signup, getCSRFToken } from './auth.js';
 
 export async function loadProfile() {
     try {

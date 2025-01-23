@@ -128,24 +128,20 @@ def verify_2fa(request):
     attempts_key = f"otp_attempts_{request.user.id}"
     attempts = cache.get(attempts_key, 0)
 
-    if attempts >= 5:
-        return Response({"error": "Too many attempts. Please try again later."}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+    if not otp_code:
+        return Response({"error": "OTP code is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         otp = TwoFactorCode.objects.get(user=request.user, code=otp_code)
         if otp.is_valid():
             otp.delete()
             cache.delete(attempts_key)
-            refresh = RefreshToken.for_user(request.user)
-            refresh['2fa_complete'] = True
+            # Issue new JWT tokens
+            tokens = create_tokens(request.user, two_fa_status=True)
             return Response({
                 "message": "2FA verification successful.",
-                "access": str(refresh.access_token),
-                "refresh": str(refresh)
+                "tokens": tokens
             }, status=status.HTTP_200_OK)
-        cache.incr(attempts_key)
-        cache.expire(attempts_key, 300)
-        return Response({"error": "Invalid or expired OTP."}, status=status.HTTP_400_BAD_REQUEST)
     except TwoFactorCode.DoesNotExist:
         cache.incr(attempts_key)
         cache.expire(attempts_key, 300)

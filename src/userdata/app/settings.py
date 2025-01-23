@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework',
     'rest_framework_simplejwt'
 ]
 
@@ -193,8 +192,8 @@ USE_TZ = True
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]
 
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
 
 
 # Static files (CSS, JavaScript, Images)

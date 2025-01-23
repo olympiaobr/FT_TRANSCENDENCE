@@ -11,7 +11,14 @@ export function getCSRFToken() {
     return csrfToken;
 }
 
-export function postAPI(url, data) {
+function saveTokens(tokens) {
+    localStorage.setItem('accessToken', tokens.access);
+    localStorage.setItem('refreshToken', tokens.refresh);
+    console.log('Tokens saved:', tokens);
+}
+
+
+export function postAPI(url, data, saveTokensCallback = null) {
     return fetch(url, {
         method: 'POST',
         headers: {
@@ -20,11 +27,23 @@ export function postAPI(url, data) {
         },
         body: JSON.stringify(data),
         credentials: 'include'
-    }).then(response => {
-        if (!response.ok) throw new Error('Response not OK');
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
         return response.json();
+    })
+    .then(data => {
+        if (saveTokensCallback && data.tokens) {
+            saveTokensCallback(data.tokens);
+        }
+        return data;
+    })
+    .catch(error => {
+        console.error(`Network error: ${error.message}`);
+        throw error;
     });
 }
+
 
 export async function verify2FA(event, username) {
     event.preventDefault();
@@ -32,8 +51,8 @@ export async function verify2FA(event, username) {
     const otp = formData.get('otp');
 
     try {
-        const response = await postAPI('/user-api/verify/', { otp });
-        if (response.message) {
+        const response = await postAPI('/user-api/verify/', { otp }, saveTokens);
+        if (response.tokens) {
             alert('2FA verification successful!');
             window.location.href = '/';
         } else {
@@ -44,6 +63,8 @@ export async function verify2FA(event, username) {
         alert('2FA verification failed: ' + error.message);
     }
 }
+
+
 
 
 export function show2FAForm(username) {
@@ -70,7 +91,7 @@ export async function login(event) {
     const data = Object.fromEntries(formData.entries());
 
     try {
-        const response = await postAPI('/user-api/login/', data);
+        const response = await postAPI('/user-api/login/', data, saveTokens);
 
         if (response.message && response.twoFA_required) {
             alert('2FA required. Check your email for the OTP.');
@@ -85,6 +106,7 @@ export async function login(event) {
         alert('Login failed: ' + error.message);
     }
 }
+
 
 export async function signup(event) {
     event.preventDefault();
