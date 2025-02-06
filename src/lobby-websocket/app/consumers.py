@@ -13,17 +13,34 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         self.lobby_group_name = f"lobby_{self.lobby_id}"
         self.roles = {"p1": None, "p2": None, "p3": None}
 
-        await self.channel_layer.group_add(
-            self.lobby_group_name,
-            self.channel_name
-        )
-        await self.accept()
+        self.cookies = self.scope.get('cookies', {})
+        self.csrf_token = self.cookies.get('csrftoken', None)
+
+        if self.csrf_token:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    "http://nginx:80/user-api/profile/",
+                    headers={
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': self.csrf_token,
+                    },
+                    cookies=self.cookies,
+                )
+                if response.status_code != 200:
+                    await self.close(code=4001)
+                    return
+        else:
+            await self.close(code=4001)
+            return
+
         player_joined_success = await self.player_joined()
         if player_joined_success:
             await self.channel_layer.group_add(
                 self.lobby_group_name,
                 self.channel_name
             )
+            logger.debug("csrf ok")
+            await self.accept()
         else:
             await self.close(code=4001)
 
@@ -73,6 +90,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     'message': 'ok'
                 }
             )
+
         logger.debug("self.pac_pong: " + self.pac_pong)
         logger.debug("self.roles['p3']: " +self.roles['p3'])
         logger.debug("self.roles['p2']: " +self.roles['p2'])
@@ -198,7 +216,14 @@ class LobbyConsumer(AsyncWebsocketConsumer):
     async def delete_lobby_entry(self):
         url = f"http://nginx:80/lobby/delete/{self.lobby_id}/"
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, data={'key': 'value'})
+            response = await client.post(
+                    url,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': self.csrf_token,
+                    },
+                    cookies=self.cookies,
+                )
             if response.status_code != 200:
                 print(f"Failed to delete lobby {self.lobby_id}: {response.text}")
                 return

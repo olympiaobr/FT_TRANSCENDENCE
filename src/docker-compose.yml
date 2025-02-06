@@ -3,7 +3,7 @@ services:
   gameplay:
     build: ./gameplay
     container_name: ${GAMEPLAY_NAME}
-    # command: daphne app.asgi:application -b 0.0.0.0 -p ${GAMEPLAY_PORT}
+    command: daphne -b 0.0.0.0 -p ${GAMEPLAY_PORT} PongBackend.asgi:application
     networks:
       - app-network
       - gameplay-redis-network
@@ -18,6 +18,9 @@ services:
       - "6379"
     networks:
       - gameplay-redis-network
+
+
+
 
   lobby_api:
     build: ./lobby-api

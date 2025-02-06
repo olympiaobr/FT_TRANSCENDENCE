@@ -48,7 +48,7 @@
             <h2>Create a Lobby:</h2>
             <div>
               <label for="lobby-name">Lobby Name:</label>
-              <input type="text" id="lobby-name" name="lobby_name" required>
+              <input type="text" id="lobby-name" name="lobby-name" required>
             </div>
             <div>
               <div id="mode-options">
@@ -74,7 +74,7 @@
                 </label>
               </div>
             </div>
-            <div>
+            <div class="active" id="tournament-check">
               <label for="tournament-mode">Tournament Mode:</label>
               <input type="checkbox" name="tornament-mode" id="tournament-mode">
             </div>
@@ -101,6 +101,38 @@
             </div>
             <button type="submit">Create</button>
           </form>
+          <div class="online" id="tournament">
+            <div id="tournament-prep">
+              <h2 id="tournament-header">Tournament: </h2>
+              <h3 id="players-header">Players: </h3>
+              <div id="player-container"></div>
+            </div>
+            <div id="tournament-container" class="disable">
+              <div>
+                <div>
+                  <button class="player_button" id="p1-round1">Name 1</button>
+                  <button id="start-1">Start</button>
+                  <button class="player_button" id="p2-round1">Name 2</button>
+                </div>
+                <div>
+                  <button class="player_button" id="p3-round1">Name 3</button>
+                  <button id="start-2">Start</button>
+                  <button class="player_button" id="p4-round1">Name 4</button>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <button class="player_button" id="p3-round1">Name 3</button>
+                  <button class="player_button" id="start-2">Start</button>
+                  <button class="player_button" id="p4-round1">Name 4</button>
+                </div>
+              </div>
+              <div>
+
+              </div>
+            </div>
+            <button class="start_button" id="start_tournament">Start Tournament</button>
+          </div>
           <div class="online" id="lobby">
             <h2 id="lobby-header">Lobby: </h2>
             <div>
@@ -124,13 +156,14 @@
     <!-- <button id="test-api">Test API</button> -->
     <pre id="output"></pre>
     <!-- <canvas id="three-canvas"></canvas>  -->
-     <div class="sign" id="sign">
+    <div class="sign sign-background active" id="sign-background"></div>
+    <div class="sign active " id="sign">
       <form class="sign-in active" id="login-form">
         <h2>Login</h2>
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Log In</button>
-        <p>Don't have an account? <span href="#" id="signup-link">Sign Up</span></p>
+        <p>Don't have an account? <span id="signup-link">Sign Up</span></p>
       </form>
       <form class="sign-in" id="signup-form">
         <h2>Sign Up</h2>
@@ -138,9 +171,10 @@
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Sign Up</button>
-        <p>Already have an account? <span href="#" id="login-link">Log In</span></p>
+        <p>Already have an account? <span id="login-link">Log In</span></p>
       </form>
      </div>
+    
   </main>
 	
   <!-- <script type="module" src="./js/game_3d.js"></script> -->

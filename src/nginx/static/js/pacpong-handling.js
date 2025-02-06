@@ -1,3 +1,4 @@
+import { getCSRFToken } from "./auth.js";
 import { gameplay_socket, initGameplaySocket, closeGameplaySocket } from "./globals.js";
 
 export function startPacPong(lobby_id, player, player_count, roles, max_score) {
@@ -10,7 +11,18 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 		ball_size: 0,
 		pac_size: 0,
 		player: player
-	}
+	};
+
+	let movementVariables = {
+		left_top: false,
+		left_down: false,
+		right_top: false,
+		right_down: false,
+		mid_top: false,
+		mid_down: false,
+		mid_left: false,
+		mid_right: false
+	};
 
 	document.querySelectorAll('.online').forEach(content => {
 		content.classList.remove('active');
@@ -23,65 +35,132 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 	twoD.style.display = 'none';
 	threeD.style.display = 'none';
 
+    const csrfToken = getCSRFToken();
 
-	initGameplaySocket(`/ws/gameplay/PacPong/${max_score}/${player_count}/${lobby_id}/`)
+	if (player_count == 1)
+		initGameplaySocket(`/ws/gameplay/PacPong/local/${max_score}/${lobby_id}/`)
+	else 
+		initGameplaySocket(`/ws/gameplay/PacPong/${max_score}/${lobby_id}/`)
 
+
+	// Override the send method
+	gameplay_socket.originalSend = gameplay_socket.send;
+	gameplay_socket.send = function (data) {
+	    console.log("Sent: ", data);  // Log the sent message
+	    this.originalSend(data);  // Call the original send method
+	};
 	const encodeState = (player, direction, moving) => {
-		const pacBit = (player == 'p3' ? 1 : 0);  // if pac is moving  1, else 0 (if 0 the achsisBit can be skipped...)
-		const achsisBit = (direction == 'left' || direction == 'right' ? 1 : 0); // if 1 it is left right, 0 is up down
-		const playerBit = (player == 'p1' ? 0 : 1); // like before
-		const directionBit = (direction == 'up' || direction == 'left' ? 1 : 0); // like before but also handles left right now in combination with achsisBit
-		const movingBit = (moving ? 1 : 0); // key down or key up
+		const pacBit = (player == 'p3' ? 1 : 0);  
+		const achsisBit = (direction == 'left' || direction == 'right' ? 1 : 0); 
+		const playerBit = (player == 'p1' ? 0 : 1); 
+		const directionBit = (direction == 'up' || direction == 'left' ? 1 : 0); 
+		const movingBit = (moving ? 1 : 0); 
+		// console.log(((pacBit << 4) | (achsisBit << 3) | (playerBit << 2) | (directionBit << 1) | movingBit), movementVariables);
 		return ((pacBit << 4) | (achsisBit << 3) | (playerBit << 2) | (directionBit << 1) | movingBit);
-	}
+	};
 
 	const handleKeyDown = (event) => {
-		if (event.key === 'w')
+		if (event.code === 'KeyW' && (((!player || player == 'p1') && !movementVariables.left_top) || (player == 'p2' && !movementVariables.right_top) || (player == 'p3' && !movementVariables.mid_top)))
+		{
+			event.preventDefault()
 			gameplay_socket.send(encodeState((player ? player : 'p1'), 'up', 1));
-		else if (event.key === 's')
+		}
+		if (event.code === 'KeyS' && (((!player || player == 'p1') && !movementVariables.left_down) || (player == 'p2' && !movementVariables.right_down) || (player == 'p3' && !movementVariables.mid_down)))
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p1'), 'down', 1));
-		else if (event.key === 'ArrowUp')
+		}
+		if (event.code === 'ArrowUp'  && (((!player || player == 'p2') && !movementVariables.right_top) || (player == 'p1' && !movementVariables.left_top) || (player == 'p3' && !movementVariables.mid_top)))
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p2'), 'up', 1));
-		else if (event.key === 'ArrowDown')
+		}
+		if (event.code === 'ArrowDown'  && (((!player || player == 'p2') && !movementVariables.right_down) || (player == 'p1' && !movementVariables.left_down) || (player == 'p3' && !movementVariables.mid_down)))
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p2'), 'down', 1));
-		else if (event.key === 'u')
+		}
+		if (event.code === 'KeyU' && (((!player || player == 'p3') && !movementVariables.mid_top) || (player == 'p2' && !movementVariables.right_top) || (player == 'p1' && !movementVariables.left_top)))
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'up', 1));
-		else if (event.key === 'j')
+		}
+		if (event.code === 'KeyJ' && (((!player || player == 'p3') && !movementVariables.mid_down) || (player == 'p2' && !movementVariables.right_down) || (player == 'p1' && !movementVariables.left_down)))
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'down', 1));
-		else if ((player == 'p3' && (event.key === 'h' || event.key === 'a' || event.key === 'ArrowLeft')) || !player && event.key === 'h')
+		}
+		if (((player == 'p3' && (event.code === 'KeyH' || event.code === 'KeyA' || event.code === 'ArrowLeft')) || (!player && event.code === 'KeyH')) && !movementVariables.mid_left )
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'left', 1));
-		else if ((player == 'p3' && (event.key === 'k' || event.key === 'd' || event.key === 'ArrowRight')) || !player && event.key === 'k')
+		}
+		if (((player == 'p3' && (event.code === 'KeyK' || event.code === 'KeyD' || event.code === 'ArrowRight')) || (!player && event.code === 'KeyK')) && !movementVariables.mid_right)
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'right', 1));
+		}
 	};
 
 	const handleKeyUp = (event) => {
-		if (event.key === 'w')
+		if (event.code === 'KeyW')
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p1'), 'up', 0));
-		else if (event.key === 's')
+		}
+		if (event.code === 'KeyS')
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p1'), 'down', 0));
-		else if (event.key === 'ArrowUp')
+		}
+		if (event.code === 'ArrowUp')
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p2'), 'up', 0));
-		else if (event.key === 'ArrowDown')
+		}
+		if (event.code === 'ArrowDown')
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p2'), 'down', 0));
-		else if (event.key === 'u')
+		}
+		if (event.code === 'KeyU')
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'up', 0));
-		else if (event.key === 'j')
+		}
+		if (event.code === 'KeyJ')
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'down', 0));
-		else if ((player == 'p3' && (event.key === 'h' || event.key === 'a' || event.key === 'ArrowLeft')) || !player && event.key === 'h')
+		}
+		if ((player == 'p3' && (event.code === 'KeyH' || event.code === 'KeyA' || event.code === 'ArrowLeft')) || (!player && event.code === 'KeyH'))
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'left', 0));
-		else if ((player == 'p3' && (event.key === 'k' || event.key === 'd' || event.key === 'ArrowRight')) || !player && event.key === 'k')
+		}
+		if ((player == 'p3' && (event.code === 'KeyK' || event.code === 'KeyD' || event.code === 'ArrowRight')) || (!player && event.code === 'KeyK'))
+		{
+			event.preventDefault();
 			gameplay_socket.send(encodeState((player ? player : 'p3'), 'right', 0));
+		}
 	};
 
 	gameplay_socket.onopen = () => {
 		console.log('Gameplay WebSocket open');
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
+		gameplay_socket.send(JSON.stringify({
+			type: 'player_joined',
+		  }))
 	};
-
+	
 	gameplay_socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		if (data.type == 'game_update') {
+		console.log("Received: " + event.type);
+		if (movementVariables.hasOwnProperty(data.type))
+			movementVariables[data.type] = data.status === 'true';
+		else if (data.type == 'game_update') {
+			console.log("drawing")
 			drawGame(data, gameSettings, roles);
 		}
 		else if (data.type == 'game_init')
@@ -114,7 +193,7 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 		console.log('Gameplay WebSocket closed');
 		document.removeEventListener('keydown', handleKeyDown);
 		document.removeEventListener('keyup', handleKeyUp);
-	}
+	};
 }
 
 function initGameSettings(data, gameSettings) {
@@ -130,7 +209,7 @@ function initGameSettings(data, gameSettings) {
 		gameSettings.canvas.width = container_height / screen_height_ratio;
 		gameSettings.canvas.height = container_height;
 	}
-	gameSettings.paddle_height = gameSettings.canvas.width * parseFloat(data.paddle_heigth);
+	gameSettings.paddle_height = gameSettings.canvas.width * parseFloat(data.paddle_height);
 	gameSettings.paddle_width = gameSettings.canvas.width * parseFloat(data.paddle_width);
 	gameSettings.ball_size = gameSettings.canvas.width * parseFloat(data.ball_size);
 	gameSettings.pac_size = gameSettings.canvas.width * parseFloat(data.pac_size);
@@ -160,9 +239,9 @@ function drawGame(data, gameSettings, roles) {
 
 	// Update score
 	if (roles)
-		gameSettings.scoreBoard.textContent = `P1 : ${roles.p1} : ${data.Lscore} | ${data.Rscore} : ${roles.p2} : P2`;
+		gameSettings.scoreBoard.textContent = `P1 : ${roles.p1} : ${data.Lscore} | PacMan : ${roles.p3} : ${data.Pscore} | P2 : ${roles.p2} : ${data.Rscore}`;
 	else
-		gameSettings.scoreBoard.textContent = `P1 : ${data.Lscore} | ${data.Rscore} : P2`;
+		gameSettings.scoreBoard.textContent = `P1 : ${data.Lscore} | PacMan : ${data.Pscore} | P2 : ${data.Rscore}`;
 }
 
 function drawGame2d(gameSettings, paddleL, paddleR, ballX, ballY, pacX, pacY) {

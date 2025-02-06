@@ -1,6 +1,5 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-# from .signals import game_update_signal, game_init_signal, game_end_signal
-import asyncio, time, json, httpx
+import asyncio, time, json
 # import logging
 # logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ class GameSession():
 	def __init__(self):
 		self.streaming = False
 		self.end = False
-		self.max_player_count = 2
+		self.max_player_count = 1
 
 		#usuable by more than one thread
 		self.player_count = 0
@@ -54,7 +53,7 @@ class GameSession():
 		self.nonce = 0
 		self.iterationStartT = 0
 
-class PongGame(AsyncWebsocketConsumer):
+class PongGameLocal(AsyncWebsocketConsumer):
 
 	GameSessions = {}
 
@@ -65,30 +64,6 @@ class PongGame(AsyncWebsocketConsumer):
 		self.lobby_id = self.scope['url_route']['kwargs']['lobby_id']
 		self.max_score = int(self.scope['url_route']['kwargs']['max_score'])
 		self.lobby_group_name = f"lobby_{self.lobby_id}"
-		self.cookies = self.scope.get('cookies', {})
-		self.csrf_token = self.cookies.get('csrftoken', None)
-
-		if self.csrf_token:
-			async with httpx.AsyncClient() as client:
-				response = await client.get(
-                    "http://nginx:80/user-api/profile/",
-                    headers={
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': self.csrf_token,
-                    },
-                    cookies=self.cookies,
-				)
-				if response.status_code != 200:
-					await self.close(code=4001)
-					return
-		else:
-			await self.close(code=4001)
-			return
-		
-		await self.channel_layer.group_add(
-            self.lobby_group_name,
-            self.channel_name
-        )
 
 		await self.accept()
 
@@ -153,7 +128,6 @@ class PongGame(AsyncWebsocketConsumer):
 					self.game_session = self.GameSessions[self.lobby_group_name]
 					self.game_session.player_count += 1
 					if self.game_session.player_count == self.game_session.max_player_count:
-						# logger.debug("all players connected")
 						self.game_session.streaming = True
 						self.game_task = asyncio.create_task(self.pong())
 					# await self.send(text_data=json.dumps({'type': 'player_joined', 'status': 'success'}))
@@ -163,69 +137,17 @@ class PongGame(AsyncWebsocketConsumer):
 	def update_paddle_input(self, player, direction, moving):
 			self.game_session.paddle_input[player][direction] = moving
 
+
 	################## DISCONNECT ##################
 
 	async def disconnect(self, close_code):
 		# This is called when the WebSocket connection is closed
 		if close_code != 4001:
 			self.game_session.player_count -= 1
-			# logger.debug("self.game_session.streaming: %s", self.game_session.streaming)
-			if self.game_session.player_count == 0:
-				# logger.debug("Deleting lobby....")
-				url = f"http://nginx:80/lobby/players/{self.lobby_id}/"
-				async with httpx.AsyncClient() as client:
-					response = await client.get(url)
-				# if response.status_code != 200:
-				# 	logger.debug(f"Failed to get players.")
-				roles = response.json()
-				# logger.debug(roles)
-				url = f"http://nginx:80/user-api/addgame/"
-				async with httpx.AsyncClient() as client:
-					response = await client.post(url, 
-								json={'gameMode': 'two-player-pong',
-				   					'players':[roles['p1'], roles['p2']],
-									'score': [self.game_session.Lscore, self.game_session.Rscore],
-				   					},
-        	    				headers={
-        	    				    'Content-Type': 'application/json',
-        	    				    'X-CSRFToken': self.csrf_token,  # Pass the CSRF token in the header
-        	    				},
-        	    				cookies={  # If the CSRF token is associated with a session cookie
-        	    				    'csrftoken': self.csrf_token
-        	    				})
-				# if response.status_code != 201:
-				# 	logger.debug(f"Failed to send score")
-					# return
-				if self.lobby_group_name in self.GameSessions:
-					del self.GameSessions[self.lobby_group_name]
-			else:
-				await self.channel_layer.group_send(
-        			self.lobby_group_name,
-        			{
-        			'type': 'player_left',
-        		    'message' : 'player disconnected - returning to lobby.',
-   				 	}
-				)			
-		
-			await self.channel_layer.group_discard(
-				self.lobby_group_name,
-			    self.channel_name
-			)
-
-	async def player_left(self, event):
-		await self.send(text_data=json.dumps(event))
-
+			if self.lobby_group_name in self.GameSessions:
+				del self.GameSessions[self.lobby_group_name]
 	
 	################## SIGNALHANDLER ##################
-
-	async def game_init(self, event):
-		await self.send(text_data=json.dumps(event))
-
-	async def game_update(self, event):
-		await self.send(text_data=json.dumps(event))
-	
-	async def game_end(self, event):
-		await self.send(text_data=json.dumps(event))
 
 	async def send_game_end(self):
 		message = "You tied."
@@ -238,41 +160,36 @@ class PongGame(AsyncWebsocketConsumer):
         	'type': 'game_end',
 			'message': message,
    		 }
-		
-		await self.channel_layer.group_send(
-        	self.lobby_group_name,
-        	game_state,
-		)
+		await self.send(text_data=json.dumps(game_state))
 
 
 	################## THREAD ##################
 
 	async def pong(self):
 
-		await self.channel_layer.group_send(
-        	self.lobby_group_name,
-        	{
+		# logger.debug("in pong")
+		await self.send(text_data=json.dumps({
         	'type': 'game_init',
         	'screen_width': str(WIDTH),
         	'screen_height': str(HEIGHT),
         	'paddle_width': str(PADDLE_WIDTH),
         	'paddle_height': str(PADDLE_HEIGHT),
         	'ball_size': str(BALL_SIZE),
-			},
-		)
-		
+			}))
+		# logger.debug("settings done")
 		tickrate = 1/120
 		self.game_session.start = int(time.time() * 1000)
 		self.game_session.nonce = int(time.time() * 1000) - self.game_session.start
 		self.game_session.iterationStartT = time.time()
 
 		while self.game_session.player_count == self.game_session.max_player_count:
-			#gameclock logic
+			# logger.debug("in loop")
 			duration = time.time() - self.game_session.iterationStartT
 			sleeptime = max(0, tickrate - duration)
 			if sleeptime > 0:
 				await asyncio.sleep(sleeptime)
 			self.game_session.iterationStartT = time.time()
+			# logger.debug("after sleep")
 
 			#increase ball speed in x direction every two passes
 			if self.game_session.passes > 0 and self.game_session.passes % 2 == 0:
@@ -356,10 +273,8 @@ class PongGame(AsyncWebsocketConsumer):
 
 			#update nonce
 			self.game_session.nonce = int(time.time() * 1000) - self.game_session.start
-
-			await self.channel_layer.group_send(
-        		self.lobby_group_name,
-        		{
+			# logger.debug("before gameupdate")
+			await self.send(text_data=json.dumps({
 					'type': 'game_update',
 					'nonce': self.game_session.nonce,
 					'paddleL': self.game_session.paddleL,
@@ -368,10 +283,11 @@ class PongGame(AsyncWebsocketConsumer):
 					'ball_y': self.game_session.ball[1],
 					'Lscore': self.game_session.Lscore,
 					'Rscore': self.game_session.Rscore,
-    			},
-			)
+    			}))
+			# logger.debug("after gameupdate")
 			
 			if self.game_session.Lscore >= self.max_score or self.game_session.Rscore >= self.max_score:
 				await self.send_game_end()
 				break
+			# logger.debug("restarting...")
 		

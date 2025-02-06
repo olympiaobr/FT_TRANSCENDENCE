@@ -211,7 +211,7 @@
   justify-content: space-between;
 }
 
-#lobby > div > button {
+/* #lobby > div > button {
   aspect-ratio: 3 / 1;
   position: relative;
   background-color: inherit;
@@ -240,10 +240,50 @@
 
 #lobby > button.start_enabled {
   visibility: visible;
+} */
+
+.game-selector .player_button {
+  aspect-ratio: 3 / 1;
+  position: relative;
+  background-color: inherit;
+  color: #E5E7EB;
+}
+
+.game-selector .player_button:hover {
+  background-color: #1d1d1d;
+}
+
+.game-selector .player_button > p {
+  font-size: clamp(1.6rem, 0.049rem + 2vw, 4rem);
+  position: absolute;
+  top: 0;
+  transform: translateY(-1.5em);
+}
+
+.game-selector .player_button.player_selected {
+  background-color:#1d1d1d;
+}
+
+.game-selector button.start_button {
+  font-size: clamp(1rem, 0.049rem + 1.4vw, 3rem);
+  visibility: hidden;
+}
+
+.game-selector button.start_enabled {
+  visibility: visible;
+}
+
+
+#tournament-check {
+  display: none;
+}
+
+#tournament-check.active {
+  display: flex;
 }
 
 #game {
-  height: 100%;
+  height: 90%;
   width: 100%;
   position: relative
 }
@@ -271,6 +311,27 @@
 
 #draw-type > p.active {
   background-color: #8d8d8d;
+}
+
+#tournament .disable {
+  display: none;
+}
+#tournament > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#tournament > div > div {
+  display: flex;
+  flex-direction: row;
+}
+
+#tournament > div > div > div{
+  display: flex;
+  flex-direction: column;
+
 }
 
 #game-canvas {

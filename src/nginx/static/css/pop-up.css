@@ -1,8 +1,9 @@
 .sign {
+    z-index: 2;
     display: none;
-    width: 80%;
     height: 80%;
-    aspect-ratio: 2 / 1;
+    width: auto;
+    aspect-ratio: 3 / 5;
     background-color: black;
     position: absolute;
     align-self: center;
@@ -34,4 +35,11 @@
 
 .sign-in.active {
     display: flex;
+}
+
+.sign-background {
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    opacity: 0.6;
 }

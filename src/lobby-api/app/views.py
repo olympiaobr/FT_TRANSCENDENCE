@@ -9,9 +9,10 @@ logger = logging.getLogger(__name__)
 
 def create_lobby(request):
     if request.method == 'POST':
-        name = request.POST.get('lobby_name')
+        name = request.POST.get('lobby-name')
         score = request.POST.get('score')
-        tournament_mode = request.POST.get('tournament_mode', 'false').lower() == 'true'
+        tournament = request.POST.get('tornament-mode')
+        tournament_mode = tournament is not None
         pac_pong = request.POST.get('pong-mode') == '1'
         mode = int(request.POST.get('mode'))
         cur_player = 0
@@ -19,6 +20,8 @@ def create_lobby(request):
             cur_player = 1
         elif pac_pong:
             mode = 3
+        if(tournament_mode):
+            mode = 4
         raw_password = request.POST.get('lobby_password', '')
         auth_response = requests.get(
             "http://nginx:80/user-api/profile/",
@@ -46,7 +49,7 @@ def create_lobby(request):
             lobby.save()
 
             return JsonResponse(
-                {'message': 'Lobby created successfully!', 'lobby': lobby.id, 'lobby_name': lobby.name, 'max_score': lobby.max_score, 'max_player_count': lobby.max_player_count, 'pac_pong': lobby.pac_pong}, 
+                {'message': 'Lobby created successfully!', 'lobby': lobby.id, 'lobby_name': lobby.name, 'max_score': lobby.max_score, 'cur_player': lobby.current_player_count, 'max_player_count': lobby.max_player_count, 'pac_pong': lobby.pac_pong, 'tournament_mode': lobby.tournament_mode}, 
                 status=201
             )        
         except IntegrityError:
@@ -153,6 +156,20 @@ def player_left(request, lobby_id, user_name):
 
 def delete_lobby_entry(request, lobby_id):
     if request.method == "POST":
+        csrf_token = request.POST.get('csrf_token')
+        if not csrf_token:
+            csrf_token = request.headers.get('X-CSRFToken')
+        auth_response = requests.get(
+            "http://nginx:80/user-api/profile/",
+            headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token,
+            },
+            cookies=request.COOKIES
+        )
+        if auth_response.status_code != 200:
+            return JsonResponse({'error': 'Unauthorized user'}, status=401)
+
         try:
             lobby = Lobby.objects.get(id=lobby_id)
             lobby.delete()  # Delete the lobby from the database

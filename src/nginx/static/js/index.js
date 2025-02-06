@@ -44,12 +44,11 @@ async function checkAuthentication() {
             credentials: 'include',
         });
 
-        console.error(`Raw Response: ${response.status}`);
-
         if (response.ok) {
             const data = await response.json();
             setName(data.display_name);
             document.getElementById('sign').classList.remove('active');
+            document.getElementById('sign-background').classList.remove('active');
             document.getElementById('login-button').style.display = 'none';
             document.getElementById('signup-button').style.display = 'none';
             document.getElementById('logout-button').style.display = 'inline-block';
@@ -58,6 +57,7 @@ async function checkAuthentication() {
             console.warn("Unauthorized: Trying token refresh...");
             const refreshed = await refreshAccessToken();
             if (refreshed) return checkAuthentication();
+        } else {
             document.getElementById('sign-background').classList.add('active');
             document.getElementById('sign').classList.add('active');
             document.getElementById('login-form').classList.add('active');

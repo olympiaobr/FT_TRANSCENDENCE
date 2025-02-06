@@ -15,6 +15,7 @@ export function initLobbySocket(url)
 
 export function initGameplaySocket(url)
 {
+  gameplay_socket = null;
     if (!gameplay_socket)
         gameplay_socket = new WebSocket(url);
     else

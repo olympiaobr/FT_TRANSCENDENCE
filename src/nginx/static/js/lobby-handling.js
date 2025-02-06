@@ -2,6 +2,10 @@ import { lobby_socket, name, closeSockets, initLobbySocket } from "./globals.js"
 import { lobbyFull } from "./lobby-creation.js";
 import { startGame } from "./game-handling.js";
 import { startPacPong } from "./pacpong-handling.js";
+import { getCSRFToken } from "./auth.js";
+
+window.addEventListener('beforeunload', closeSockets);
+window.addEventListener('popstate', closeSockets);
 
 function selectPlayer(role, db_value) {
     if (lobby_socket && lobby_socket.readyState === WebSocket.OPEN) {
@@ -23,13 +27,10 @@ function selectPlayer(role, db_value) {
     }
   }
   
-  // function generateGuestName() {
-  //   const randomNumber = Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
-  //   return `guest${randomNumber}`;
-  // }
-
 export function joinLocalLobby(lobby_id, lobby_name, max_score, pac_pong)
 {
+  window.currentLobbyId = lobby_id;
+  console.log(window.currentLobbyId);
   document.querySelectorAll('.online').forEach(content => 
     {
       content.classList.remove('active');
@@ -44,6 +45,8 @@ export function joinLocalLobby(lobby_id, lobby_name, max_score, pac_pong)
   p2.style.display = 'none';
   p3.style.display = 'none';
   const start_button = document.getElementById('start_game');
+  window.addEventListener('beforeunload', beforeunloadDeleteLobby);
+  window.addEventListener('popstate', popstateDeleteLobby);
   if (start_button) {
     start_button.replaceWith(start_button.cloneNode(true));
     const new_start_button = document.getElementById('start_game');
@@ -55,6 +58,29 @@ export function joinLocalLobby(lobby_id, lobby_name, max_score, pac_pong)
         startGame(lobby_id, '', 1, '', max_score);
     });
   }
+}
+function beforeunloadDeleteLobby()
+{
+  deleteLobby();
+}
+
+function popstateDeleteLobby()
+{
+  deleteLobby();
+}
+
+function deleteLobby() {
+    const url = `/lobby/delete/${window.currentLobbyId}/`;
+    const data = new FormData();
+    data.append('csrf_token', getCSRFToken());
+
+    if (!navigator.sendBeacon(url, data)) {
+      console.error(`Failed to send delete request for Lobby: ${window.currentLobbyId}`);
+    } else {
+      console.log("Lobby delete request sent successfully.");
+          window.removeEventListener('beforeunload', beforeunloadDeleteLobby);
+          window.removeEventListener('popstate', popstateDeleteLobby);
+    }
 }
   
 export function joinLobby(lobby_id, lobby_name, max_score, pac_pong)
@@ -78,6 +104,10 @@ export function joinLobby(lobby_id, lobby_name, max_score, pac_pong)
     
     lobby_socket.onopen = () => {
       console.log('Lobby WebSocket connected');
+      // lobby_socket.send(JSON.stringify({
+      //   action: 'csrf_token',
+      //   csrf_token: getCSRFToken(),
+      // }));
       document.getElementById('lobby-header').textContent = `Lobby: ${lobby_name}`;
       lobby_socket.send(JSON.stringify({
         action: 'init_player_roles',
@@ -156,8 +186,6 @@ export function joinLobby(lobby_id, lobby_name, max_score, pac_pong)
         alert("Player already in lobby.");
       }
     }
-    
-    window.addEventListener('beforeunload', closeSockets);
     });
   }
   

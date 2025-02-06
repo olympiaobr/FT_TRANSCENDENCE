@@ -170,8 +170,8 @@ export async function signup(event) {
     try {
         const response = await postAPI('/user-api/signup/', data, false);
         if (response.message === 'User created successfully') {
-            alert('Signup successful! Please log in.');
-            showLoginForm();
+            console.log("Sign up success");
+            window.location.href = '/';
         } else {
             alert(response.error || 'Signup failed');
         }
