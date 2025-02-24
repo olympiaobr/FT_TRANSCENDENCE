@@ -118,7 +118,11 @@ function fetchProfileData() {
             twoFAToggle.checked = !!data.twoFA_active;
             twoFAStatus.textContent = data.twoFA_active ? "Enabled" : "Disabled";
         }
-
+        const onlineStatusElement = document.getElementById('online-status');
+        if (onlineStatusElement) {
+            onlineStatusElement.textContent = data.online_status ? "🟢 Online" : "🔴 Offline";
+            onlineStatusElement.style.color = data.online_status ? "green" : "red";
+        }
         // Game statistics
         const stats = data['stats']
         document.getElementById('games-played').textContent = stats['total']['games-played'] ?? "-";
