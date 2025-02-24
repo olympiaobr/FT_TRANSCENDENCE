@@ -25,6 +25,9 @@ let scoreAnimations = {
 const SCORE_ANIMATION_DURATION = 1.0; // Duration in seconds
 const MAX_SCALE = 1.5; // Maximum scale during animation
 
+// Add after other global variables
+let leftInstructions, rightInstructions;
+
 export function initGame3D(canvas) {
     // Initialize renderer with explicit pixel ratio and size handling
     renderer = new THREE.WebGLRenderer({
@@ -220,6 +223,9 @@ export function initGame3D(canvas) {
         font = loadedFont;
         createScoreDisplays();
         createInstructionsText(canvas.max_score);
+        const instructions = createPlayerInstructions();
+        leftInstructions = instructions.leftInstructions;
+        rightInstructions = instructions.rightInstructions;
     });
 
     // Camera - adjust to view from front
@@ -664,6 +670,9 @@ export function animate() {
         }
     });
 
+    if (leftInstructions) updateFloatingInstructions(leftInstructions, deltaTime);
+    if (rightInstructions) updateFloatingInstructions(rightInstructions, deltaTime);
+
     renderer.render(scene, camera);
 }
 
@@ -741,6 +750,9 @@ export function cleanup() {
         left: { scale: 1, time: 0 },
         right: { scale: 1, time: 0 }
     };
+
+    leftInstructions = null;
+    rightInstructions = null;
 }
 
 function updateBallTrail() {
@@ -823,4 +835,163 @@ function createParticleTexture() {
     const texture = new THREE.CanvasTexture(canvas);
     texture.premultiplyAlpha = true;
     return texture;
+}
+
+// Modify the createPlayerInstructions function
+function createPlayerInstructions() {
+    if (!font) return;
+
+    // Create materials with glow effect
+    const textMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x00ffff,          // Cyan
+        emissive: 0x00ffff,       // Cyan glow
+        emissiveIntensity: 0.5,   
+        shininess: 50,
+        transparent: true,
+        opacity: 0.9
+    });
+
+    // Create arrow geometry
+    const arrowGeometry = new THREE.BufferGeometry();
+    const arrowVertices = new Float32Array([
+        0, 0.3, 0,    // Tip
+        -0.1, 0, 0,   // Bottom left
+        0.1, 0, 0,    // Bottom right
+    ]);
+    arrowGeometry.setAttribute('position', new THREE.BufferAttribute(arrowVertices, 3));
+
+    // Left player instructions (Up/Down arrows)
+    const leftGroup = new THREE.Group();
+    
+    // Up arrow
+    const upArrow = new THREE.Mesh(arrowGeometry, textMaterial.clone());
+    upArrow.position.set(0, 0.4, 0);
+    
+    // Down arrow
+    const downArrow = new THREE.Mesh(arrowGeometry, textMaterial.clone());
+    downArrow.rotation.z = Math.PI;
+    downArrow.position.set(0, -0.4, 0);
+    
+    // Text for left controls
+    const leftText = new THREE.Mesh(
+        new TextGeometry('W\n\n\nS', {
+            font: font,
+            size: 0.3,
+            height: 0.05,
+            curveSegments: 12,
+            bevelEnabled: false
+        }),
+        textMaterial.clone()
+    );
+    leftText.position.set(-0.5, 0.6, 0);
+
+    // Right player instructions (Up/Down arrows)
+    const rightGroup = new THREE.Group();
+    
+    // Up arrow
+    const upArrow2 = upArrow.clone();
+    
+    // Down arrow
+    const downArrow2 = downArrow.clone();
+    
+    // Text for right controls
+    const rightText = new THREE.Mesh(
+        new TextGeometry('up\n\n\ndown', {
+            font: font,
+            size: 0.3,
+            height: 0.05,
+            curveSegments: 12,
+            bevelEnabled: false
+        }),
+        textMaterial.clone()
+    );
+    rightText.position.set(0.3, 0.6, 0);
+
+    // Add glow effect
+    const glowMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x00ffff,
+        emissive: 0x00ffff,
+        emissiveIntensity: 0.4,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.FrontSide
+    });
+
+    // Create glow meshes
+    const leftGlow = new THREE.Group();
+    leftGlow.add(upArrow.clone());
+    leftGlow.add(downArrow.clone());
+    leftGlow.add(leftText.clone());
+    leftGlow.children.forEach(child => {
+        child.material = glowMaterial.clone();
+        child.scale.multiplyScalar(1.02);
+    });
+    leftGlow.position.z = 0.01;
+
+    const rightGlow = new THREE.Group();
+    rightGlow.add(upArrow2.clone());
+    rightGlow.add(downArrow2.clone());
+    rightGlow.add(rightText.clone());
+    rightGlow.children.forEach(child => {
+        child.material = glowMaterial.clone();
+        child.scale.multiplyScalar(1.02);
+    });
+    rightGlow.position.z = 0.01;
+
+    // Add all elements to their groups
+    leftGroup.add(upArrow);
+    leftGroup.add(downArrow);
+    leftGroup.add(leftText);
+    leftGroup.add(leftGlow);
+    
+    rightGroup.add(upArrow2);
+    rightGroup.add(downArrow2);
+    rightGroup.add(rightText);
+    rightGroup.add(rightGlow);
+
+    // Position the groups vertically along the paddles
+    leftGroup.position.set(-10, 2, 0);
+    rightGroup.position.set(10, 2, 0);
+    
+    // Apply slight rotation for a dynamic effect
+    leftGroup.rotation.y = 0.2;  // Slight twist to the left
+    leftGroup.rotation.x = -0.2;   // Slight tilt back
+
+    rightGroup.rotation.y = -0.2;  // Slight twist to the right
+    rightGroup.rotation.x = -0.2;  // Slight tilt back
+    
+    // Add animation data
+    leftGroup.userData = { pulseTime: 0, baseIntensity: 0.5, floatOffset: 0 };
+    rightGroup.userData = { pulseTime: Math.PI, baseIntensity: 0.5, floatOffset: Math.PI };
+
+    scene.add(leftGroup);
+    scene.add(rightGroup);
+
+    return { leftInstructions: leftGroup, rightInstructions: rightGroup };
+}
+
+// Add this function to update the floating animation
+function updateFloatingInstructions(instructions, deltaTime) {
+    if (!instructions) return;
+
+    instructions.userData.pulseTime += deltaTime * 2;
+    instructions.userData.floatOffset += deltaTime;
+
+    // Floating motion
+    const floatY = Math.sin(instructions.userData.floatOffset) * 0.1;
+    instructions.position.y = instructions.position.y - (instructions.position.y - (2 + floatY)) * 0.1;
+
+    // Pulsing glow
+    const pulseFactor = (Math.sin(instructions.userData.pulseTime) + 1) / 2;
+    
+    const mainText = instructions.children[0];
+    const glowText = instructions.children[1];
+
+    if (mainText.material && glowText.material) {
+        mainText.material.emissiveIntensity = 
+            instructions.userData.baseIntensity * (0.8 + pulseFactor * 0.4);
+        
+        glowText.material.opacity = 0.2 + pulseFactor * 0.2;
+        glowText.material.emissiveIntensity = 0.3 + pulseFactor * 0.3;
+    }
 }
