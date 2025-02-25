@@ -97,6 +97,8 @@ def login_view(request):
 				"username": user.username
 			}, status=status.HTTP_200_OK)
 
+		user.profile.online_status = True
+		user.profile.save(update_fields=["online_status"])
 		tokens = create_tokens(user, two_fa_status=True)
 		login(request, user)
 		return Response({
@@ -152,14 +154,15 @@ def logout_view(request):
 			except Exception as e:
 				logger.warning(f"Failed to blacklist token: {e}")
 
+		request.user.profile.online_status = False
+		request.user.profile.save(update_fields=["online_status"])
+
 		logout(request)
 		return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
 
 	except Exception as e:
 		logger.error(f"Logout error: {e}")
 		return Response({"error": "Logout failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -189,6 +192,7 @@ def profile_view(request):
 		data['username'] = user.username
 		data['display_name'] = profile.display_name if hasattr(profile, 'display_name') else user.username
 
+		data['online_status'] = profile.online_status
 		return Response(data, status=status.HTTP_200_OK)
 	except Profile.DoesNotExist:
 		return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -223,7 +227,7 @@ def upload_avatar(request):
 
 	if not file:
 		return Response({'error': 'No avatar provided'}, status=status.HTTP_400_BAD_REQUEST)
-	
+
 	if profile.avatar:
 		try:
 			profile.avatar.delete(save=False)
@@ -293,7 +297,9 @@ class FriendActionsViewSet(viewsets.ViewSet):
 	def fetch_friends(self, request):
 		try:
 			profile = get_object_or_404(Profile.objects.prefetch_related('friends'), user=request.user)
-			serialized_friends = FriendSerializer(profile.friends.all(), many=True, context={'request': request})
+			friends = profile.friends.filter(user__profile__isnull=False)
+
+			serialized_friends = FriendSerializer(friends, many=True, context={'request': request})
 			return Response(serialized_friends.data, status=status.HTTP_200_OK)
 		except Exception as e:
 			logger.error(f"Error fetching friends: {e}")  # 🔍 Log the error
@@ -302,11 +308,13 @@ class FriendActionsViewSet(viewsets.ViewSet):
 
 	@action(detail=False, methods=['post'], url_path='add/(?P<username>[^/.]+)')
 	def send_friend_invite(self, request, username=None):
-		"""Add a friend directly."""
 		if username == request.user.username:
 			return Response({'status': 'error', 'message': 'Cannot add yourself.'}, status=status.HTTP_400_BAD_REQUEST)
 
 		friend_user = get_object_or_404(User, username=username)
+		if not hasattr(friend_user, 'profile'):
+			return Response({'status': 'error', 'message': 'User does not have a profile.'}, status=status.HTTP_400_BAD_REQUEST)
+
 		profile = get_object_or_404(Profile, user=request.user)
 
 		if friend_user.profile in profile.friends.all():

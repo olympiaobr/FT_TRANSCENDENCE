@@ -10,6 +10,9 @@ export function loadProfile() {
 	loadAvatar();
 	displayMatchHistory('two-player-pong');
 	fetchPendingRequests();
+
+    setInterval(fetchFriends, 10000);
+
 	// }
     // const logoutButton = document.getElementById('logout-button');
     // if (logoutButton) logoutButton.addEventListener('click', logout);
