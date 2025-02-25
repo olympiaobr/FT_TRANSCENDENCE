@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.http import HttpResponse, Http404
+from django.db.models import Q
 from .models import Profile, FriendRequest, TwoFactorCode
 from .serializers import UserSerializer, ProfileSerializer, FriendSerializer, FriendRequestSerializer, TokenWith2FASerializer
 from django.middleware.csrf import get_token
@@ -308,6 +309,7 @@ class FriendActionsViewSet(viewsets.ViewSet):
 
 	@action(detail=False, methods=['post'], url_path='add/(?P<username>[^/.]+)')
 	def send_friend_invite(self, request, username=None):
+		"""Send a friend request instead of directly adding a friend."""
 		if username == request.user.username:
 			return Response({'status': 'error', 'message': 'Cannot add yourself.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -320,8 +322,14 @@ class FriendActionsViewSet(viewsets.ViewSet):
 		if friend_user.profile in profile.friends.all():
 			return Response({'status': 'error', 'message': 'Already friends.'}, status=status.HTTP_400_BAD_REQUEST)
 
-		profile.friends.add(friend_user.profile)
-		return Response({'status': 'success', 'friend': FriendSerializer(friend_user.profile).data}, status=status.HTTP_201_CREATED)
+		if FriendRequest.objects.filter(
+			Q(from_user=request.user, to_user=friend_user) | Q(from_user=friend_user, to_user=request.user)
+		).exists():
+			return Response({'status': 'error', 'message': 'Friend request already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+		FriendRequest.objects.create(from_user=request.user, to_user=friend_user)
+
+		return Response({'status': 'success', 'message': 'Friend request sent.'}, status=status.HTTP_201_CREATED)
 
 
 	@action(detail=False, methods=['delete'], url_path='remove/(?P<username>[^/.]+)')
@@ -377,9 +385,9 @@ class FriendRequestViewSet(viewsets.ViewSet):
 		recipient = get_object_or_404(User, username=username)
 
 		if FriendRequest.objects.filter(
-			models.Q(from_user=request.user, to_user=recipient) |
-			models.Q(from_user=recipient, to_user=request.user)
+			Q(from_user=request.user, to_user=recipient) | Q(from_user=recipient, to_user=request.user)
 		).exists():
+
 			return Response(
 				{'status': 'error', 'message': 'Friend request already exists.'},
 				status=status.HTTP_400_BAD_REQUEST
