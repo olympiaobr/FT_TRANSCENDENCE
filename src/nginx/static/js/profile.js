@@ -141,7 +141,6 @@ async function loadAvatar() {
 		const response = await fetch('/user-api/download-avatar/', {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`,
         },
         credentials: 'include',
