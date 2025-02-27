@@ -35,33 +35,11 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
     mid_right: false
   };
   toggle3dButton();
-    
-    // const twoD = document.getElementById('2d');
-    // const threeD = document.getElementById('3d');
-
-    // twoD.addEventListener('click', 
-    //   () => {
-    //   gameSettings.contextType = '2d';
-    //   threeD.classList.remove('active');
-    //   twoD.classList.add('active');
-    //   console.log('2d selected');
-    //   console.log(gameSettings);
-    // });
-
-    // threeD.addEventListener('click', 
-    //   () => {
-    //   gameSettings.contextType = '3d';
-    //   twoD.classList.remove('active');
-    //   threeD.classList.add('active');
-    //   console.log('3d selected');
-    //   console.log(gameSettings);
-    // });
 
     const encodeState = (player, direction, moving) => {
       const playerBit = (player == 'p1' ? 0 : 1);
       const directionBit = (direction == 'up' ? 1 : 0);
       const movingBit = (moving ? 1 : 0);
-      console.log(((playerBit << 2) | (directionBit << 1) | movingBit));
       return ((playerBit << 2) | (directionBit << 1) | movingBit);
     };
 
@@ -106,7 +84,6 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
   };
 
     gameplay_socket.onopen = () => {
-      console.log('Gameplay WebSocket open');
       document.addEventListener('keydown', handleKeyDown);
       document.addEventListener('keyup', handleKeyUp);
       document.querySelectorAll('.online').forEach(content => 
@@ -115,14 +92,11 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
         }
       );
     document.getElementById('game').classList.add('active');
-      gameplay_socket.send(JSON.stringify({
-        type: 'player_joined',
-      }))
+    gameplay_socket.send(JSON.stringify({ type: 'player_joined' }));
     };
 
     gameplay_socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data.type);
       if (movementVariables.hasOwnProperty(data.type))
         movementVariables[data.type] = data.status === 'true';
       else if (data.type == 'game_update')
@@ -131,7 +105,6 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
         initGameSettings(data, gameSettings);
       else if(data.type == 'player_left') {
         closeGameplaySocket();
-        console.log("player disconnected");
         document.querySelectorAll('.online').forEach(content => 
           {
             content.classList.remove('active');
@@ -141,7 +114,6 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
         customAlert("Player disconnected - returning to lobby.");
       }
       else if(data.type == 'game_end') {
-        console.log("game ending...");
         closeGameplaySocket();
         customAlert(data.message);
         document.querySelectorAll('.online').forEach(content => 
@@ -153,16 +125,16 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
       }
     };
 
-    gameplay_socket.onerror = () => {
-      history.go(0);
-      customAlert("Session expired. Please Log in again.");
-    }
+    // gameplay_socket.onerror = () => {
+    //   history.go(0);
+    //   customAlert("Session expired. Please Log in again.");
+    // }
 
   gameplay_socket.onclose = () => {
-    console.log('Gameplay WebSocket closed');
     document.removeEventListener('keydown', handleKeyDown);
     document.removeEventListener('keyup', handleKeyUp);
-  };
+    window.removeEventListener('resize', updateGameCanvas);
+    };
 
   window.addEventListener('resize', () => {
     updateGameCanvas(gameSettings);

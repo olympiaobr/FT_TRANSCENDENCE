@@ -122,7 +122,7 @@ export const CreateLobby = () => `
               <input type="checkbox" name="tornament-mode" id="tournament-mode">
             </div>
             <div>
-              <label for="score-options">Score:</label>
+              <p>Score:</p>
               <div id="score-options">
                 <label class="score-option">
                   <input type="radio" name="score" value="3" checked>
@@ -190,9 +190,9 @@ export const Lobby = () => `
         <div class="online active" id="lobby">
             <h2 id="lobby-header">Lobby: </h2>
             <div>
-              <button class="player_button" id="p1"><p>P1</p></button>
-              <button class="player_button" id="p3"><p>PacMan</p></button>
-              <button class="player_button" id="p2"><p>P2</p></button>
+              <button class="player_button" id="p1" style="display: none;"><p>P1</p></button>
+              <button class="player_button" id="p3" style="display: none;"><p>PacMan</p></button>
+              <button class="player_button" id="p2" style="display: none;"><p>P2</p></button>
             </div>
             <button class="start_button" id="start_game">Start Game</button>
         </div>

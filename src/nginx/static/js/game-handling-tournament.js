@@ -38,8 +38,6 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
       gameSettings.contextType = '2d';
       threeD.classList.remove('active');
       twoD.classList.add('active');
-      console.log('2d selected');
-      console.log(gameSettings);
     });
 
     threeD.addEventListener('click', 
@@ -47,15 +45,12 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
       gameSettings.contextType = '3d';
       twoD.classList.remove('active');
       threeD.classList.add('active');
-      console.log('3d selected');
-      console.log(gameSettings);
     });
 
     const encodeState = (player, direction, moving) => {
       const playerBit = (player == 'p1' ? 0 : 1);
       const directionBit = (direction == 'up' ? 1 : 0);
       const movingBit = (moving ? 1 : 0);
-      console.log(((playerBit << 2) | (directionBit << 1) | movingBit));
       return ((playerBit << 2) | (directionBit << 1) | movingBit);
     };
 
@@ -90,23 +85,19 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
     };
 
     gameplay_socket.onopen = () => {
-      console.log('Gameplay WebSocket open');
       document.addEventListener('keydown', handleKeyDown);
       document.addEventListener('keyup', handleKeyUp);
-    document.querySelectorAll('.online').forEach(content => 
+      document.querySelectorAll('.online').forEach(content => 
         {
           content.classList.remove('active');
         }
       );
-    document.getElementById('game').classList.add('active');
-      gameplay_socket.send(JSON.stringify({
-        type: 'player_joined',
-      }))
+      document.getElementById('game').classList.add('active');
+      gameplay_socket.send(JSON.stringify({ type: 'player_joined' }));
     };
 
     gameplay_socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data.type);
       if (movementVariables.hasOwnProperty(data.type))
         movementVariables[data.type] = data.status === 'true';
       else if (data.type == 'game_update')
@@ -115,7 +106,6 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
         initGameSettings(data, gameSettings);
       else if(data.type == 'player_left') {
         closeGameplaySocket();
-        console.log("player disconnected");
         document.querySelectorAll('.online').forEach(content => 
           {
             content.classList.remove('active');
@@ -124,7 +114,6 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
         document.getElementById('tournament').classList.add('active');
       }
       else if(data.type == 'game_end') {
-        console.log("game ending...");
         closeGameplaySocket();
         customAlert(data.message);
         document.querySelectorAll('.online').forEach(content => 
@@ -142,12 +131,12 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
       }
     };
 
-    gameplay_socket.onerror = console.error;
+    // gameplay_socket.onerror = console.error;
 
     gameplay_socket.onclose = () => {
-      console.log('Gameplay WebSocket closed');
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('resize', updateGameCanvas);
     };
 
     window.addEventListener('resize', () => {
@@ -202,22 +191,16 @@ function drawGame(data, gameSettings, roles)
   const maxX = 1000;
   const maxY = 500;
 
-  // const nonce = parseInt(data.nonce);
   const paddleL = normalize(parseInt(data.paddleL), maxY, gameSettings.canvas.height);
   const paddleR = normalize(parseInt(data.paddleR), maxY, gameSettings.canvas.height);
   const ballX = normalize(parseInt(data.ball_x), maxX, gameSettings.canvas.width);
   const ballY = normalize(parseInt(data.ball_y), maxY, gameSettings.canvas.height);
 
-// right now i was thinking to toggle the drawing mode from 2d to 3d
-// but if you use three.js, we could also just switch the camera position and have it one.
-
-//and dont wonder, i set both (if else) to drawGame2d right now, since drawGame3d is not implemented yet.
   if (gameSettings.contextType == '2d')
     drawGame2d(gameSettings, paddleL, paddleR, ballX, ballY);
   else 
     drawGame3d(gameSettings, paddleL, paddleR, ballX, ballY);
 
-  // Update score
   if (roles)
     gameSettings.scoreBoard.textContent = `P1 : ${roles.p1} : ${data.Lscore} | ${data.Rscore} : ${roles.p2} : P2`;
   else
