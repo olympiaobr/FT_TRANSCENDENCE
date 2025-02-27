@@ -295,7 +295,7 @@ button:hover:after {
 /* .game-selector  */
 button.start_button {
   font-size: clamp(1rem, 0.049rem + 1.4vw, 3rem);
-  padding: 0.8em 0;
+  padding: 0.6rem;
   visibility: hidden;
 }
 

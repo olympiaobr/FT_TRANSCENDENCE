@@ -285,14 +285,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             self.lobby_session.players.p2,
             'enable_start_1'
         )
-        # await self.send_2players(
-        #     self.lobby_session.player_names.get(self.lobby_session.players.p3),
-        #     self.lobby_session.players.p3,
-        #     self.lobby_session.player_names.get(self.lobby_session.players.p4), 
-        #     self.lobby_session.players.p4,
-        #     'enable_start_2'
-        # )
-    
+
     async def send_start_tournament(self, event):
         await self.send(text_data=json.dumps({
             'type': 'start_tournament',
@@ -332,13 +325,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     async def send_p1_round2(self, event):
         await self.send(text_data=json.dumps({
             'type': 'p1_round2',
-            'p1_round2' : event['p1_round2']
+            'p1_round2' : event['p1_round2'],
+            'p3_round2' : event['p3_round2']
         }))  
 
     async def send_p2_round2(self, event):
         await self.send(text_data=json.dumps({
             'type': 'p2_round2',
-            'p2_round2' : event['p2_round2']
+            'p2_round2' : event['p2_round2'],
+            'p4_round2' : event['p4_round2']
         }))  
 
     async def send_update_players(self, event):
