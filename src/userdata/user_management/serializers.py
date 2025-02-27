@@ -25,10 +25,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     stats = serializers.JSONField(read_only=True)
     avatar_url = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True)
+    online_status = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Profile
-        fields = ['user', 'display_name', 'avatar_url', 'stats', 'password']
+        fields = ['user', 'display_name', 'avatar_url', 'stats', 'password', 'online_status']
 
     def get_avatar_url(self, obj):
         if obj.avatar:
@@ -53,13 +54,13 @@ class ProfileSerializer(serializers.ModelSerializer):
 class FriendSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
     is_friend = serializers.SerializerMethodField()
+    online_status = serializers.BooleanField()
 
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'is_friend']
+        fields = ['id', 'username', 'is_friend', 'online_status']
 
     def get_username(self, obj):
-        """Ensure we always get the correct username whether obj is Profile or User."""
         if isinstance(obj, User):
             return obj.username
         return obj.user.username
