@@ -15,7 +15,7 @@ from .serializers import UserSerializer, ProfileSerializer, FriendSerializer, Fr
 from django.middleware.csrf import get_token
 from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework import viewsets
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -248,7 +248,7 @@ def download_avatar(request):
 		with open(avatar_path, 'rb') as avatar_file:
 			return HttpResponse(avatar_file.read(), content_type="image/jpeg")
 	except FileNotFoundError:
-		raise Http404("Avatar file not found")
+		return redirect('/images/default_avatar.jpg')
 	except Exception as e:
 		raise Http404(f"An error occurred: {str(e)}")
 
