@@ -192,10 +192,10 @@ async function genTournamentTableBody(games, matchHistoryBody) {
         let winnerCell = getPlacement(players, scores, 1);
         let secondCell = getPlacement(players, scores, 2);
 		let resultCell;
-		if (players[0] == document.getElementById('username').textContent){
-			resultCell = getGameStatus(scores, 0);
-		} else if (players[1] == document.getElementById('username').textContent) {
-			resultCell = getGameStatus(scores, 1);
+		if (winnerCell.textContent == document.getElementById('username').textContent){
+			resultCell = document.createElement('td');
+			resultCell.textContent = 'Win';
+        	resultCell.style.color = 'green';
 		} else {
 			resultCell = document.createElement('td');
 			resultCell.textContent = 'Lost';
