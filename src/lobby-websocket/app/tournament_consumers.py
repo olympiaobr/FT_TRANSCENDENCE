@@ -76,11 +76,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             await self.close(code=4001)
             return
         
-        await self.channel_layer.group_add(
-            self.lobby_group_name,
-            self.channel_name
-        )   
-        await self.accept()
+        player_joined_success = await self.player_joined()
+        if player_joined_success:
+            await self.channel_layer.group_add(
+                self.lobby_group_name,
+                self.channel_name
+            )
+            await self.accept()
+        else:
+            await self.close(code=4001)
 
 	################## RECEIVE ##################
 
@@ -92,19 +96,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             if self.lobby_group_name not in self.LobbySessions:
                 self.LobbySessions[self.lobby_group_name] = LobbySession()
             self.lobby_session = self.LobbySessions[self.lobby_group_name]
-            player_joined_success = await self.player_joined()
 
-            if player_joined_success:
-                self.lobby_session.player_names[self.user_name] = self.channel_name
-                await self.channel_layer.group_send(
-                self.lobby_group_name,
-                {
-                    'type': 'send_update_players',
-                    'player_names' : self.lobby_session.player_names
-                }
-                )
-            else:
-                await self.disconnect(4001)
+            self.lobby_session.player_names[self.user_name] = self.channel_name
+            await self.channel_layer.group_send(
+            self.lobby_group_name,
+            {
+                'type': 'send_update_players',
+                'player_names' : self.lobby_session.player_names
+            }
+            )
 
         elif action == 'restart_tournament':
             self.lobby_session.players.reset()
@@ -426,14 +426,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	################## DISCONNECT ##################
 
     async def disconnect(self, close_code):
-        if self.lobby_session is not None:
-            if await self.player_left() == 0:
-                await self.delete_lobby_entry()
+        if close_code != 4001 and close_code != 1006:
+            if self.lobby_session is not None:
+                if await self.player_left() == 0:
+                    await self.delete_lobby_entry()
 
-        await self.channel_layer.group_discard(
-            self.lobby_group_name,
-            self.channel_name
-        )
+            await self.channel_layer.group_discard(
+                self.lobby_group_name,
+                self.channel_name
+            )
 
     async def player_left(self):
         url = f"http://lobby_api:8002/lobby/player_left/{self.lobby_id}/{self.user_name}/"

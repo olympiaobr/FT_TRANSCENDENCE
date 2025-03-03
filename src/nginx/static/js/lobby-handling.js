@@ -28,7 +28,7 @@ export function joinLobby()
   {
     lobbyFull(window.lobby_id).then(is_full => {
       if (is_full) {
-        customAlert('Lobby is full or does not exist anymore. Cannot join.');
+        customAlert('Cannot join.');
         navigateTo("/");
         return;
       }
@@ -70,7 +70,7 @@ export function joinLobby()
         if (data.type === 'start_game')
         {
             if (window.pac_pong == 1)
-              startPacPong(window.lobby_id, roles.p1 == name ? 'p1' : roles.p2 == name ? 'p2' : roles.p2 == name ? 'p3' : '', window.max_player_count, roles, window.max_score, window.pac_pong);
+              startPacPong(window.lobby_id, roles.p1 == name ? 'p1' : roles.p2 == name ? 'p2' : roles.p3 == name ? 'p3' : '', window.max_player_count, roles, window.max_score, window.pac_pong);
             else
               startGame(window.lobby_id, roles.p1 == name ? 'p1' : roles.p2 == name ? 'p2' : '', window.max_player_count, roles, window.max_score);
         } 
@@ -112,9 +112,9 @@ export function joinLobby()
     
     lobby_socket.onerror = console.error;
     lobby_socket.onclose = (event) => {
-      if (event.code == 4001) {
+      if (event.code == 403) {
         navigateTo("/");
-        customAlert("Player already in lobby.");
+        customAlert("Cannot join.");
       }
     }
     });

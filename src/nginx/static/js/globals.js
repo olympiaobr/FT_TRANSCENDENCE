@@ -1,4 +1,5 @@
 import { getAccessToken } from "./auth.js";
+import { navigateTo } from "./routing.js";
 
 export let lobby_socket;
 
@@ -13,7 +14,15 @@ export function initLobbySocket(url)
 {
   const accessToken = getAccessToken();
     if (!lobby_socket)
+    {
+      try {
         lobby_socket = new WebSocket(`${url}?token=${accessToken}`);
+      }
+      catch {
+        navigateTo("/");
+        customAlert("Cannot join lobby");
+      }
+    }
 }
 
 export function initGameplaySocket(url)
@@ -21,7 +30,15 @@ export function initGameplaySocket(url)
   const accessToken = getAccessToken();
 
     if (!gameplay_socket)
+    {
+      try {
         gameplay_socket = new WebSocket(`${url}?token=${accessToken}`);
+      }
+      catch {
+        navigateTo("/");
+        customAlert("Cannot join game");
+      }
+    }
 }
 
 export function initGameplaySocketTournament(url, p1, p2, p3, p4, lobby_name)

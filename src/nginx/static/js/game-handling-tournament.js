@@ -1,6 +1,6 @@
 import { drawGame2d, drawGame3d } from "./drawPongGame.js";
+import { resize3d, toggle3dButton } from "./game-buttons.js";
 import { gameplay_socket, lobby_socket, initGameplaySocketTournament, closeGameplaySocket, customAlert } from "./globals.js";
-import { navigateTo } from "./routing.js";
 
 
 export function startTournamentGame(lobby_id, game_id, player, roles, max_score, p1, p2, p3, p4, lobby_name)
@@ -15,8 +15,11 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
         paddle_height : 0,
         ball_size : 0,
         player : player,
-        screen_height_ratio : 0
+        screen_height_ratio : 0,
+        max_score: max_score,
     };
+
+    window.gameSettings = gameSettings;
 
     let movementVariables = {
       left_top: false,
@@ -29,23 +32,7 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
       mid_right: false
     };
     
-
-    const twoD = document.getElementById('2d');
-    const threeD = document.getElementById('3d');
-
-    twoD.addEventListener('click', 
-      () => {
-      gameSettings.contextType = '2d';
-      threeD.classList.remove('active');
-      twoD.classList.add('active');
-    });
-
-    threeD.addEventListener('click', 
-      () => {
-      gameSettings.contextType = '3d';
-      twoD.classList.remove('active');
-      threeD.classList.add('active');
-    });
+    toggle3dButton();
 
     const encodeState = (player, direction, moving) => {
       const playerBit = (player == 'p1' ? 0 : 1);
@@ -137,6 +124,7 @@ export function startTournamentGame(lobby_id, game_id, player, roles, max_score,
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('resize', updateGameCanvas);
+      window.removeEventListener('resize', resize3d);
     };
 
     window.addEventListener('resize', () => {
@@ -199,7 +187,7 @@ function drawGame(data, gameSettings, roles)
   if (gameSettings.contextType == '2d')
     drawGame2d(gameSettings, paddleL, paddleR, ballX, ballY);
   else 
-    drawGame3d(gameSettings, paddleL, paddleR, ballX, ballY);
+    drawGame3d(gameSettings, paddleL, paddleR, ballX, ballY, gameSettings.max_score);
 
   if (roles)
     gameSettings.scoreBoard.textContent = `P1 : ${roles.p1} : ${data.Lscore} | ${data.Rscore} : ${roles.p2} : P2`;
