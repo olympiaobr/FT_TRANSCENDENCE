@@ -23,11 +23,6 @@ class GameSession():
 		self.end = False
 		self.max_player_count = 3
 
-
-		#usuable by more than one thread
-		self.player_count = 0
-		self.paddle_input = [[0,0],[0,0]]
-
 		self.player_count = 0
 		self.paddle_input = [[0,0],[0,0]]
 		self.pac_input = [[0,0],[0,0]]
