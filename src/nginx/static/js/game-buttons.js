@@ -10,20 +10,6 @@ export function toggle3dButton()
     twoDButton.classList.remove('active');
     canvas2d.style.display = 'block';
     canvas3d.style.display = 'none';
-    
-    // Initialize 3D view immediately
-    (async () => {
-        canvas3d.width = canvas2d.width;
-        canvas3d.height = canvas2d.height;
-        
-        const game3dModule = await import('./game_3d.js');
-        game3dModule.cleanup();
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        game3dModule.initGame3D(canvas3d);
-        game3dModule.resizeRenderer(canvas3d.clientWidth, canvas3d.clientHeight);
-        game3dModule.animate();
-    })();
 
     // Add back the 3D button event listener
     threeDButton.addEventListener('click', async () => {
@@ -53,7 +39,6 @@ export function toggle3dButton()
         const game3dModule = await import('./game_3d.js');
         game3dModule.cleanup();
     });
-    canvas3d.style.display = 'none';
 
     // Fix the resize handler
     window.addEventListener('resize', resize3d);
