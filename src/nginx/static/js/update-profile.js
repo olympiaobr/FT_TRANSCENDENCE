@@ -99,11 +99,11 @@ function updateUserData() {
         }
         if (!response.ok) return response.json().then(data => { throw new Error(data.error || 'Failed to update profile'); });
 
-        customAlert('Profile updated successfully!');
         navigateTo("/profile");
+        alert('Profile updated successfully!');
     })
     .catch(error => {
         console.error('Error updating profile:', error);
-        customAlert(error.message || 'Failed to update profile.');
+        alert(error.message || 'Failed to update profile.');
     });
 }
