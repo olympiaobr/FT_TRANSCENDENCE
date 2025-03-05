@@ -13,7 +13,7 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
     let gameSettings = {
         scoreBoard : document.getElementById('score'),
         canvas : document.getElementById('game-canvas'),
-        contextType : '2d',
+        contextType : '3d',
         paddle_width : 0,
         paddle_height : 0,
         ball_size : 0,
@@ -35,6 +35,7 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
     mid_right: false
   };
 
+  // Initialize 3D mode
   toggle3dButton();
 
     const encodeState = (player, direction, moving) => {
