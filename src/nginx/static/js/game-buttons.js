@@ -8,8 +8,8 @@ export function toggle3dButton()
     // Set initial state to 3D
     threeDButton.classList.add('active');
     twoDButton.classList.remove('active');
-    canvas2d.style.display = 'none';
-    canvas3d.style.display = 'block';
+    canvas2d.style.display = 'block';
+    canvas3d.style.display = 'none';
     
     // Initialize 3D view immediately
     (async () => {
@@ -53,17 +53,20 @@ export function toggle3dButton()
         const game3dModule = await import('./game_3d.js');
         game3dModule.cleanup();
     });
+    canvas3d.style.display = 'none';
 
     // Fix the resize handler
+    window.addEventListener('resize', resize3d);
+}
+
+export function resize3d() {
     let resizeTimeout;
-    window.addEventListener('resize', () => {
-        // Debounce resize events
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(async () => {
-            if (gameSettings.contextType === '3d') {
-                const game3dModule = await import('./game_3d.js');
-                game3dModule.resizeRenderer(canvas3d.clientWidth, canvas3d.clientHeight);
-            }
-        }, 100);
-    });
+    const canvas3d = document.getElementById('three-canvas');
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(async () => {
+        if (gameSettings.contextType === '3d') {
+            const game3dModule = await import('./game_3d.js');
+            game3dModule.resizeRenderer(canvas3d.clientWidth, canvas3d.clientHeight);
+        }
+    }, 100);
 }

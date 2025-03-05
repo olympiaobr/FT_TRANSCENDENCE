@@ -1,5 +1,5 @@
 import { drawGame2d, drawGame3d } from "./drawPongGame.js";
-import { toggle3dButton } from "./game-buttons.js";
+import { resize3d, toggle3dButton } from "./game-buttons.js";
 import { gameplay_socket, initGameplaySocket, closeGameplaySocket, customAlert } from "./globals.js";
 
 
@@ -13,7 +13,7 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
     let gameSettings = {
         scoreBoard : document.getElementById('score'),
         canvas : document.getElementById('game-canvas'),
-        contextType : '3d',
+        contextType : '2d',
         paddle_width : 0,
         paddle_height : 0,
         ball_size : 0,
@@ -34,6 +34,7 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
     mid_left: false,
     mid_right: false
   };
+
   toggle3dButton();
 
     const encodeState = (player, direction, moving) => {
@@ -134,6 +135,7 @@ export function startGame(lobby_id, player, player_count, roles, max_score)
     document.removeEventListener('keydown', handleKeyDown);
     document.removeEventListener('keyup', handleKeyUp);
     window.removeEventListener('resize', updateGameCanvas);
+    window.removeEventListener('resize', resize3d);
     };
 
   window.addEventListener('resize', () => {

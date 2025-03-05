@@ -180,9 +180,29 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 	gameplay_socket.onclose = () => {
 		console.log('Gameplay WebSocket closed');
 		document.removeEventListener('keydown', handleKeyDown);
+		window.removeEventListener('resize', updateGameCanvas);
 		document.removeEventListener('keyup', handleKeyUp);
 	};
+    window.addEventListener('resize', () => {
+		updateGameCanvas(gameSettings);
+	});
 }
+
+function updateGameCanvas(gameSettings) {
+	const canvas_container = document.getElementById('game');
+	let container_height = canvas_container.clientHeight;
+	let container_width = canvas_container.clientWidth;
+	if (container_height > container_width * gameSettings.screen_height_ratio)
+	  {
+		  gameSettings.canvas.width = container_width;
+		  gameSettings.canvas.height = container_width * gameSettings.screen_height_ratio;
+	  }
+	  else 
+	  {
+		  gameSettings.canvas.width = container_height / gameSettings.screen_height_ratio;
+		  gameSettings.canvas.height = container_height;
+	  }
+  }
 
 function initGameSettings(data, gameSettings) {
 	const canvas_container = document.getElementById('game');

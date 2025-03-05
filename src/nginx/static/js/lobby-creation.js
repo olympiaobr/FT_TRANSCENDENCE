@@ -117,6 +117,7 @@ export function lobbyFull(lobby_id)
     })
     .catch(error => {
       console.log('Fetch error: ' + error);
+      navigateTo("/");
     }
   );
 }

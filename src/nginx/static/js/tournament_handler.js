@@ -161,14 +161,10 @@ export function joinTournament()
           start_3.classList.add('fighting');
         }
     }
-    lobby_socket.onclose = () => {
-
-      // document.querySelectorAll('.online').forEach(content => 
-      //   {
-      //     content.classList.remove('active');
-      //   }
-      // );
-      // document.getElementById('option-choose').classList.add('active');
+    lobby_socket.onclose = (event) => {
+      if (event.code == 403) {
+        customAlert("Cannot join.");
+      }
       navigateTo("/");
     }
 } 
