@@ -29,9 +29,6 @@ class GameSession():
 		self.player_count = 0
 		self.paddle_input = [[0,0],[0,0]]
 
-		self.player_count = 0
-		self.paddle_input = [[0,0],[0,0]]
-
 		# size
 		self.screen_width = MAX * WIDTH
 		self.screen_height = MAX * HEIGHT

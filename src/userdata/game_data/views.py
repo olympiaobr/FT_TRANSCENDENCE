@@ -11,9 +11,6 @@ from user_management.models import Profile
 from rest_framework import status
 from app.paginations import GameDataPagination
 
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.csrf import csrf_exempt
-
 logger = logger = logging.getLogger('django')
 
 class MicroserviceTokenAuthentication(BaseAuthentication):
@@ -26,24 +23,11 @@ class MicroserviceTokenAuthentication(BaseAuthentication):
             raise AuthenticationFailed('No permission to access API')
         return (None, None)
 
-# @method_decorator(csrf_exempt, name='dispatch')
 class GameDataCreate(generics.CreateAPIView):
     queryset = GameData.objects.all()
     serializer_class = GameDataSerializer
     authentication_classes = [MicroserviceTokenAuthentication]
     permission_classes = []
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         logger.info(f"Received request at {request.path} with method {request.method}")
-#         logger.info(f"Headers: {dict(request.headers)}")
-# 
-#         try:
-#             body = request.body.decode("utf-8")
-#             logger.info(f"Request Body: {body}")
-#         except Exception as e:
-#             logger.warning(f"Failed to read request body: {e}")
-# 
-#         return super().dispatch(request, *args, **kwargs)
 
 class GameDataList(generics.ListAPIView):
 	queryset = GameData.objects.all()

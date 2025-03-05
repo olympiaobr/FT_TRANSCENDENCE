@@ -1,4 +1,5 @@
 import { getAccessToken } from "./auth.js";
+import { navigateTo } from "./routing.js";
 
 export let lobby_socket;
 
@@ -13,31 +14,39 @@ export function initLobbySocket(url)
 {
   const accessToken = getAccessToken();
     if (!lobby_socket)
+    {
+      try {
         lobby_socket = new WebSocket(`${url}?token=${accessToken}`);
-    else
-        console.warn("Lobby socket already initialized.");
+      }
+      catch {
+        navigateTo("/");
+        customAlert("Cannot join lobby");
+      }
+    }
 }
 
 export function initGameplaySocket(url)
 {
   const accessToken = getAccessToken();
 
-  gameplay_socket = null;
     if (!gameplay_socket)
+    {
+      try {
         gameplay_socket = new WebSocket(`${url}?token=${accessToken}`);
-    else
-        console.warn("Gameplaylocket socket already initialized.");
+      }
+      catch {
+        navigateTo("/");
+        customAlert("Cannot join game");
+      }
+    }
 }
 
 export function initGameplaySocketTournament(url, p1, p2, p3, p4, lobby_name)
 {
   const accessToken = getAccessToken();
 
-  gameplay_socket = null;
     if (!gameplay_socket)
       gameplay_socket = new WebSocket(`${url}?token=${encodeURIComponent(accessToken)}&p1=${encodeURIComponent(p1)}&p2=${encodeURIComponent(p2)}&p3=${encodeURIComponent(p3)}&p4=${encodeURIComponent(p4)}&lobby_name=${encodeURIComponent(lobby_name)}`);
-    else
-        console.warn("Gameplaylocket socket already initialized.");
 }
 
 export function closeGameplaySocket()

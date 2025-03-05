@@ -24,15 +24,6 @@ class GameSession():
 		self.gameThread = None
 		self.max_player_count = 1
 
-
-		#usuable by more than one thread
-		self.player_count = 0
-		self.paddle_input = [[0,0],[0,0]]
-
-		# locks
-		# self.player_count_lock = asyncio.Lock()
-		# self.player_input_lock = asyncio.Lock()
-
 		self.player_count = 0
 		self.paddle_input = [[0,0],[0,0]]
 		self.pac_input = [[0,0],[0,0]]

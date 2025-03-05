@@ -50,6 +50,24 @@
     padding: 15px;
 }
 
+.two-factor-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4vh;
+}
+
+.two-factor-page > form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4vh;
+}
+
+
 #friends-list ul {
     display: flex;
     flex-direction: column;

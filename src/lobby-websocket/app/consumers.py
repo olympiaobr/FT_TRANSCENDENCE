@@ -1,8 +1,8 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 import httpx
-# import logging
-# logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 class LobbyConsumer(AsyncWebsocketConsumer):
 
@@ -52,21 +52,24 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
 
-        if await self.player_left() == 0:
-            await self.delete_lobby_entry()
-        else:
-            await self.channel_layer.group_send(
+        logger.debug("close_code:")
+        logger.debug(close_code)
+        if close_code != 4001 and close_code != 1006:
+            if await self.player_left() == 0:
+                await self.delete_lobby_entry()
+            else:
+                await self.channel_layer.group_send(
+                    self.lobby_group_name,
+                    {
+                        'type': 'disable_start_button',
+                        'message' : 'start button disabled'
+                    }
+                )
+
+            await self.channel_layer.group_discard(
                 self.lobby_group_name,
-                {
-                    'type': 'disable_start_button',
-                    'message' : 'start button disabled'
-                }
+                self.channel_name
             )
-            
-        await self.channel_layer.group_discard(
-            self.lobby_group_name,
-            self.channel_name
-        )
 
     async def receive(self, text_data):
         # Handle messages from the WebSocket

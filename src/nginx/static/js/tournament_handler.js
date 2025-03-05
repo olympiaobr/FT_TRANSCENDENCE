@@ -109,11 +109,13 @@ export function joinTournament()
         }
         else if (data.type == 'start_1')
         {
+          console.log("start 1");
           disableStartButton(start_1);
           startTournamentGame(window.lobby_id + `game_1`, `game_1`, data.roles.p1 == name ? 'p1' : 'p2', data.roles, window.max_score, p1.textContent, p2.textContent, p3.textContent, p4.textContent, window.lobby_name);
         }
         else if (data.type == 'start_2')
         {
+          console.log("start 2");
           disableStartButton(start_2);
           startTournamentGame(window.lobby_id + `game_2`, `game_2`, data.roles.p1 == name ? 'p1' : 'p2', data.roles, window.max_score, p3.textContent, p4.textContent, p1.textContent, p2.textContent, window.lobby_name);
         }
@@ -159,14 +161,10 @@ export function joinTournament()
           start_3.classList.add('fighting');
         }
     }
-    lobby_socket.onclose = () => {
-
-      // document.querySelectorAll('.online').forEach(content => 
-      //   {
-      //     content.classList.remove('active');
-      //   }
-      // );
-      // document.getElementById('option-choose').classList.add('active');
+    lobby_socket.onclose = (event) => {
+      if (event.code == 403) {
+        customAlert("Cannot join.");
+      }
       navigateTo("/");
     }
 } 

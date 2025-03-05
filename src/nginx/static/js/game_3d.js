@@ -29,6 +29,15 @@ const MAX_SCALE = 1.5; // Maximum scale during animation
 let leftInstructions, rightInstructions;
 
 export function initGame3D(canvas) {
+    // Reset score-related variables
+    currentScore = { left: 0, right: 0 };
+    scoreAnimations = {
+        left: { scale: 1, time: 0 },
+        right: { scale: 1, time: 0 }
+    };
+    playerScoreText = null;
+    player2ScoreText = null;
+
     // Initialize renderer with explicit pixel ratio and size handling
     renderer = new THREE.WebGLRenderer({
         canvas,
@@ -284,6 +293,33 @@ function updateStarfield() {
 function createScoreDisplays() {
     if (!font || !scene) return;
 
+    // Clean up any existing score displays
+    if (playerScoreText) {
+        scene.remove(playerScoreText);
+        if (playerScoreText.geometry) playerScoreText.geometry.dispose();
+        if (playerScoreText.material) {
+            if (Array.isArray(playerScoreText.material)) {
+                playerScoreText.material.forEach(material => material.dispose());
+            } else {
+                playerScoreText.material.dispose();
+            }
+        }
+        playerScoreText = null;
+    }
+
+    if (player2ScoreText) {
+        scene.remove(player2ScoreText);
+        if (player2ScoreText.geometry) player2ScoreText.geometry.dispose();
+        if (player2ScoreText.material) {
+            if (Array.isArray(player2ScoreText.material)) {
+                player2ScoreText.material.forEach(material => material.dispose());
+            } else {
+                player2ScoreText.material.dispose();
+            }
+        }
+        player2ScoreText = null;
+    }
+
     const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
 
     // Create initial score texts with depth instead of height
@@ -324,8 +360,18 @@ function updateScoreDisplays() {
     // Update left score
     if (playerScoreText) {
         scene.remove(playerScoreText);
-        playerScoreText.geometry.dispose();
+        if (playerScoreText.geometry) playerScoreText.geometry.dispose();
+        if (playerScoreText.material) {
+            if (Array.isArray(playerScoreText.material)) {
+                playerScoreText.material.forEach(material => material.dispose());
+            } else {
+                playerScoreText.material.dispose();
+            }
+        }
+        playerScoreText = null;
     }
+
+    // Create new left score
     playerScoreText = new THREE.Mesh(
         new TextGeometry(currentScore.left.toString(), {
             font: font,
@@ -343,8 +389,18 @@ function updateScoreDisplays() {
     // Update right score
     if (player2ScoreText) {
         scene.remove(player2ScoreText);
-        player2ScoreText.geometry.dispose();
+        if (player2ScoreText.geometry) player2ScoreText.geometry.dispose();
+        if (player2ScoreText.material) {
+            if (Array.isArray(player2ScoreText.material)) {
+                player2ScoreText.material.forEach(material => material.dispose());
+            } else {
+                player2ScoreText.material.dispose();
+            }
+        }
+        player2ScoreText = null;
     }
+
+    // Create new right score
     player2ScoreText = new THREE.Mesh(
         new TextGeometry(currentScore.right.toString(), {
             font: font,
@@ -652,7 +708,7 @@ export function animate() {
     
     const deltaTime = 1/60;
     
-    requestAnimationFrame(animate);
+    window.animationFrameId = requestAnimationFrame(animate);
     controls?.update();
     updateStarfield();
     updateBallTrail();
@@ -692,36 +748,39 @@ export function cleanup() {
         window.animationFrameId = null;
     }
 
+    // Dispose of all resources
     if (scene) {
-        // Dispose of all meshes, materials, and geometries
+        // Dispose of all geometries and materials
         scene.traverse((object) => {
-            if (object.isMesh) {
-                if (object.geometry) {
-                    object.geometry.dispose();
-                }
-                if (object.material) {
-                    if (Array.isArray(object.material)) {
-                        object.material.forEach(material => material.dispose());
-                    } else {
-                        object.material.dispose();
-                    }
+            if (object.geometry) {
+                object.geometry.dispose();
+            }
+            
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach(material => material.dispose());
+                } else {
+                    object.material.dispose();
                 }
             }
         });
-
+        
         // Clear the scene
-        while(scene.children.length > 0) {
-            scene.remove(scene.children[0]);
+        while(scene.children.length > 0) { 
+            scene.remove(scene.children[0]); 
         }
     }
     
-    if (controls) {
-        controls.dispose();
-        controls = null;
+    // Dispose of renderer
+    if (renderer) {
+        renderer.dispose();
     }
-
-    // Reset all variables but keep renderer and scene
+    
+    // Reset all variables
+    scene = null;
     camera = null;
+    renderer = null;
+    controls = null;
     ball = null;
     playerPaddle = null;
     player2Paddle = null;
@@ -729,30 +788,19 @@ export function cleanup() {
     player2ScoreText = null;
     font = null;
     currentScore = { left: 0, right: 0 };
-
-    if (ballTrail) {
-        ballTrail.geometry.dispose();
-        ballTrail.material.dispose();
-        ballTrail = null;
-    }
+    starfield = null;
+    ballTrail = null;
     trailPoints = [];
-
-    // Clean up impact particles
-    impactParticles.forEach(impact => {
-        scene.remove(impact.mesh);
-        impact.mesh.geometry.dispose();
-        impact.mesh.material.dispose();
-    });
     impactParticles = [];
     cameraShakeIntensity = 0;
-
     scoreAnimations = {
         left: { scale: 1, time: 0 },
         right: { scale: 1, time: 0 }
     };
-
     leftInstructions = null;
     rightInstructions = null;
+    
+    console.log("3D resources cleaned up");
 }
 
 function updateBallTrail() {

@@ -73,6 +73,10 @@ def signup_view(request):
 	if User.objects.filter(username=username).exists():
 		logger.error(f"Username already exists: {username}")
 		return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+	
+	if User.objects.filter(email=email).exists():
+		logger.error(f"Email already exists: {email}")
+		return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
 	try:
 		user = User.objects.create_user(username=username, password=password, email=email)
@@ -208,8 +212,11 @@ def update_profile_view(request):
 		user = profile.user
 		email = request.data.get('email')
 		if email:
-			user.email = email
-			user.save()
+			if not User.objects.filter(email=email).exclude(id=user.id).exists():
+				user.email = email
+				user.save()
+			else:
+				return Response({"message": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
 		serializer.save()
 		return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)

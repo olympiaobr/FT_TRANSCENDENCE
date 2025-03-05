@@ -28,7 +28,7 @@ export function joinLobby()
   {
     lobbyFull(window.lobby_id).then(is_full => {
       if (is_full) {
-        customAlert('Lobby is full or does not exist anymore. Cannot join.');
+        customAlert('Cannot join.');
         navigateTo("/");
         return;
       }
@@ -47,26 +47,21 @@ export function joinLobby()
     };
 
     lobby_socket.onopen = () => {
-      console.log('Lobby WebSocket connected');
       document.getElementById('lobby-header').textContent = `Lobby: ${window.lobby_name}`;
       if (window.max_player_count == 1)
-      {
-        p1.style.display = 'none';
-        p2.style.display = 'none';
-        p3.style.display = 'none';
         enableStartButton();
-      }
       else
       {
-        lobby_socket.send(JSON.stringify({
-          action: 'init_player_roles',
-        }));
+        lobby_socket.send(JSON.stringify({action: 'init_player_roles'}));
+        p1.style.display = 'flex';
+        p2.style.display = 'flex';
         p1.addEventListener('click', () => selectPlayer('p1', roles.p1));
         p2.addEventListener('click', () => selectPlayer('p2', roles.p2));
+        }
         if (window.pac_pong == 1)
+        {
+          p3.style.display = 'flex';
           p3.addEventListener('click', () => selectPlayer('p3', roles.p3));
-        else
-          p3.style.display = 'none';
         }
     };
   
@@ -74,9 +69,8 @@ export function joinLobby()
         const data = JSON.parse(e.data);
         if (data.type === 'start_game')
         {
-            console.log('Game starting...');
             if (window.pac_pong == 1)
-              startPacPong(window.lobby_id, roles.p1 == name ? 'p1' : roles.p2 == name ? 'p2' : roles.p2 == name ? 'p3' : '', window.max_player_count, roles, window.max_score, window.pac_pong);
+              startPacPong(window.lobby_id, roles.p1 == name ? 'p1' : roles.p2 == name ? 'p2' : roles.p3 == name ? 'p3' : '', window.max_player_count, roles, window.max_score, window.pac_pong);
             else
               startGame(window.lobby_id, roles.p1 == name ? 'p1' : roles.p2 == name ? 'p2' : '', window.max_player_count, roles, window.max_score);
         } 
@@ -118,10 +112,9 @@ export function joinLobby()
     
     lobby_socket.onerror = console.error;
     lobby_socket.onclose = (event) => {
-      console.log('Lobby WebSocket closed');
-      if (event.code == 4001) {
+      if (event.code == 403) {
         navigateTo("/");
-        customAlert("Player already in lobby.");
+        customAlert("Cannot join.");
       }
     }
     });

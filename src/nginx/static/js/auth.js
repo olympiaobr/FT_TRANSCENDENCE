@@ -147,6 +147,7 @@ export function show2FAForm(username) {
 
     const mainContent = document.querySelector('body');
     mainContent.innerHTML = `
+    <div class="two-factor-page">
         <h1>Verify OTP</h1>
         <p>Username: <span>${username}</span></p>  <!-- No id needed -->
         <form id="2fa-form">
@@ -154,6 +155,7 @@ export function show2FAForm(username) {
             <button type="submit">Verify</button>
         </form>
         <button id="resend-otp">Resend OTP</button>
+    </div>
     `;
 
     const twoFAForm = document.getElementById('2fa-form');
