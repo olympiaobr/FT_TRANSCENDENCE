@@ -708,7 +708,7 @@ export function animate() {
     
     const deltaTime = 1/60;
     
-    requestAnimationFrame(animate);
+    window.animationFrameId = requestAnimationFrame(animate);
     controls?.update();
     updateStarfield();
     updateBallTrail();
@@ -748,96 +748,59 @@ export function cleanup() {
         window.animationFrameId = null;
     }
 
-    // Reset score animations
-    scoreAnimations = {
-        left: { scale: 1, time: 0 },
-        right: { scale: 1, time: 0 }
-    };
-
-    // Reset current score
-    currentScore = { left: 0, right: 0 };
-
+    // Dispose of all resources
     if (scene) {
-        // Dispose of all meshes, materials, and geometries
+        // Dispose of all geometries and materials
         scene.traverse((object) => {
-            if (object.isMesh) {
-                if (object.geometry) {
-                    object.geometry.dispose();
-                }
-                if (object.material) {
-                    if (Array.isArray(object.material)) {
-                        object.material.forEach(material => material.dispose());
-                    } else {
-                        object.material.dispose();
-                    }
+            if (object.geometry) {
+                object.geometry.dispose();
+            }
+            
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach(material => material.dispose());
+                } else {
+                    object.material.dispose();
                 }
             }
         });
-
+        
         // Clear the scene
-        while(scene.children.length > 0) {
-            scene.remove(scene.children[0]);
+        while(scene.children.length > 0) { 
+            scene.remove(scene.children[0]); 
         }
     }
     
-    if (controls) {
-        controls.dispose();
-        controls = null;
+    // Dispose of renderer
+    if (renderer) {
+        renderer.dispose();
     }
-
-    // Explicitly clean up score text objects
-    if (playerScoreText) {
-        if (playerScoreText.geometry) playerScoreText.geometry.dispose();
-        if (playerScoreText.material) {
-            if (Array.isArray(playerScoreText.material)) {
-                playerScoreText.material.forEach(material => material.dispose());
-            } else {
-                playerScoreText.material.dispose();
-            }
-        }
-    }
-
-    if (player2ScoreText) {
-        if (player2ScoreText.geometry) player2ScoreText.geometry.dispose();
-        if (player2ScoreText.material) {
-            if (Array.isArray(player2ScoreText.material)) {
-                player2ScoreText.material.forEach(material => material.dispose());
-            } else {
-                player2ScoreText.material.dispose();
-            }
-        }
-    }
-
-    // Reset all variables but keep renderer and scene
+    
+    // Reset all variables
+    scene = null;
     camera = null;
+    renderer = null;
+    controls = null;
     ball = null;
     playerPaddle = null;
     player2Paddle = null;
     playerScoreText = null;
     player2ScoreText = null;
     font = null;
-
-    if (ballTrail) {
-        ballTrail.geometry.dispose();
-        ballTrail.material.dispose();
-        ballTrail = null;
-    }
+    currentScore = { left: 0, right: 0 };
+    starfield = null;
+    ballTrail = null;
     trailPoints = [];
-
-    // Clean up impact particles
-    impactParticles.forEach(impact => {
-        if (impact.mesh) {
-            scene.remove(impact.mesh);
-            if (impact.mesh.geometry) impact.mesh.geometry.dispose();
-            if (impact.mesh.material) impact.mesh.material.dispose();
-        }
-    });
     impactParticles = [];
     cameraShakeIntensity = 0;
-    
-    // Clean up instructions
+    scoreAnimations = {
+        left: { scale: 1, time: 0 },
+        right: { scale: 1, time: 0 }
+    };
     leftInstructions = null;
     rightInstructions = null;
+    
+    console.log("3D resources cleaned up");
 }
 
 function updateBallTrail() {
