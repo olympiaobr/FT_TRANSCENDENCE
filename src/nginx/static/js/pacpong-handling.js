@@ -38,7 +38,7 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 		const playerBit = (player == 'p1' ? 0 : 1); 
 		const directionBit = (direction == 'up' || direction == 'left' ? 1 : 0); 
 		const movingBit = (moving ? 1 : 0); 
-		// console.log(((pacBit << 4) | (achsisBit << 3) | (playerBit << 2) | (directionBit << 1) | movingBit), movementVariables);
+		// // console.log(((pacBit << 4) | (achsisBit << 3) | (playerBit << 2) | (directionBit << 1) | movingBit), movementVariables);
 		return ((pacBit << 4) | (achsisBit << 3) | (playerBit << 2) | (directionBit << 1) | movingBit);
 	};
 
@@ -129,7 +129,7 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 	};
 
 	gameplay_socket.onopen = () => {
-		console.log('Gameplay WebSocket open');
+		// console.log('Gameplay WebSocket open');
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
 		document.querySelectorAll('.online').forEach(content => {
@@ -148,14 +148,14 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 		if (movementVariables.hasOwnProperty(data.type))
 			movementVariables[data.type] = data.status === 'true';
 		else if (data.type == 'game_update') {
-			console.log("drawing")
+			// console.log("drawing")
 			drawGame(data, gameSettings, roles);
 		}
 		else if (data.type == 'game_init')
 			initGameSettings(data, gameSettings);
 		else if (data.type == 'player_left') {
 			closeGameplaySocket();
-			console.log("player disconnected");
+			// console.log("player disconnected");
 			document.querySelectorAll('.online').forEach(content => {
 				content.classList.remove('active');
 			}
@@ -164,7 +164,7 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 			customAlert("Player disconnected - returning to lobby.");
 		}
 		else if (data.type == 'game_end') {
-			console.log("game ending...");
+			// console.log("game ending...");
 			closeGameplaySocket();
 			customAlert(data.message);
 			document.querySelectorAll('.online').forEach(content => {
@@ -178,31 +178,12 @@ export function startPacPong(lobby_id, player, player_count, roles, max_score) {
 	gameplay_socket.onerror = console.error;
 
 	gameplay_socket.onclose = () => {
-		console.log('Gameplay WebSocket closed');
+		// console.log('Gameplay WebSocket closed');
 		document.removeEventListener('keydown', handleKeyDown);
-		window.removeEventListener('resize', updateGameCanvas);
 		document.removeEventListener('keyup', handleKeyUp);
 	};
-    window.addEventListener('resize', () => {
-		updateGameCanvas(gameSettings);
-	});
-}
 
-function updateGameCanvas(gameSettings) {
-	const canvas_container = document.getElementById('game');
-	let container_height = canvas_container.clientHeight;
-	let container_width = canvas_container.clientWidth;
-	if (container_height > container_width * gameSettings.screen_height_ratio)
-	  {
-		  gameSettings.canvas.width = container_width;
-		  gameSettings.canvas.height = container_width * gameSettings.screen_height_ratio;
-	  }
-	  else 
-	  {
-		  gameSettings.canvas.width = container_height / gameSettings.screen_height_ratio;
-		  gameSettings.canvas.height = container_height;
-	  }
-  }
+}
 
 function initGameSettings(data, gameSettings) {
 	const canvas_container = document.getElementById('game');
@@ -246,9 +227,6 @@ function drawGame(data, gameSettings, roles) {
 	drawGame2d(gameSettings, paddleL, paddleR, ballX, ballY, pacX, pacY);
 
 	// Update score
-	if (roles)
-		gameSettings.scoreBoard.textContent = `P1 : ${roles.p1} : ${data.Lscore} | PacMan : ${roles.p3} : ${data.Pscore} | P2 : ${roles.p2} : ${data.Rscore}`;
-	else
 		gameSettings.scoreBoard.textContent = `P1 : ${data.Lscore} | PacMan : ${data.Pscore} | P2 : ${data.Rscore}`;
 }
 

@@ -76,7 +76,7 @@ export async function refreshAccessToken() {
 
         const data = await response.json();
         saveTokens(data);
-        // console.log("Access token refreshed.");
+        // // console.log("Access token refreshed.");
         return true;
     } catch (error) {
         // console.error("Token refresh failed:", error);
@@ -109,7 +109,7 @@ function fetchProfileData() {
         return response.json();
     })
     .then(data => {
-        // console.log("Profile Data:", data);
+        // // console.log("Profile Data:", data);
 
         document.getElementById('username').textContent = data.username || "Unknown User";
         document.getElementById('display-name').textContent = data.display_name || "No display name set";
@@ -294,8 +294,8 @@ function displayFriends(friends) {
                 ${friend.online_status ? 'Online' : 'Offline'}
             </span>
             <button class="remove-friend-btn" data-username="${friend.username}">Remove</button>
-            <button class="block-friend-btn" data-username="${friend.username}">Block</button>
-        `;
+			`;
+            // <button class="block-friend-btn" data-username="${friend.username}">Block</button>
 
         friendsList.appendChild(friendItem);
     });
@@ -306,11 +306,11 @@ function displayFriends(friends) {
         });
     });
 
-    document.querySelectorAll('.block-friend-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            blockFriend(this.getAttribute('data-username'));
-        });
-    });
+    // document.querySelectorAll('.block-friend-btn').forEach(button => {
+    //     button.addEventListener('click', function () {
+    //         blockFriend(this.getAttribute('data-username'));
+    //     });
+    // });
 }
 
 async function addFriend() {

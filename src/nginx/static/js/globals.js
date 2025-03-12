@@ -52,7 +52,7 @@ export function initGameplaySocketTournament(url, p1, p2, p3, p4, lobby_name)
 export function closeGameplaySocket()
 {
   if (gameplay_socket && gameplay_socket.readyState === WebSocket.OPEN) {
-    console.log("closing gameplay  socket...");
+    //// console.log("closing gameplay  socket...");
     gameplay_socket.close();
   }
   gameplay_socket = null;
@@ -60,7 +60,7 @@ export function closeGameplaySocket()
 
 export function closeSockets() {
     if (lobby_socket && lobby_socket.readyState === WebSocket.OPEN) {
-      console.log("closing lobby socket")
+      //// console.log("closing lobby socket")
       lobby_socket.close();
     }
     lobby_socket = null;

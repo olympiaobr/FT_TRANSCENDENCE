@@ -21,7 +21,7 @@ function loadCurrentUserData() {
         return;
     }
 
-    console.log("DEBUG: Access Token Being Sent:", accessToken);
+    // console.log("DEBUG: Access Token Being Sent:", accessToken);
 
     fetch('/user-api/profile/', {
         method: 'GET',
@@ -32,7 +32,7 @@ function loadCurrentUserData() {
         credentials: 'include',
     })
     .then(response => {
-        console.log("DEBUG: Raw Response:", response.status);
+        // console.log("DEBUG: Raw Response:", response.status);
         if (response.status === 401) {
             console.warn("Unauthorized! Attempting token refresh...");
             return refreshAccessToken().then(success => {
@@ -44,7 +44,7 @@ function loadCurrentUserData() {
         return response.json();
     })
     .then(data => {
-        console.log("DEBUG: Profile Data:", data);
+        // console.log("DEBUG: Profile Data:", data);
         document.getElementById('display-name').value = data.display_name || '';
         document.getElementById('email').value = data.user.email || '';
     })
@@ -65,8 +65,13 @@ function updateUserData() {
     const password = document.getElementById('password').value.trim();
     const confirmPassword = document.getElementById('confirm-password').value.trim();
 
+    const displayNameRegex = /^[a-zA-Z0-9]+$/;
     if (!displayName || !email) {
         alert('Display Name and Email are required.');
+        return;
+    }
+    if (!displayNameRegex.test(displayName)) {
+        alert('Display Name can only contain letters and numbers.');
         return;
     }
     if (password && password !== confirmPassword) {
@@ -83,7 +88,7 @@ function updateUserData() {
     fetch('/user-api/update-profile/', {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization':  `Bearer ${accessToken}`,
             'X-CSRFToken': getCSRFToken(),
         },
         body: formData,
@@ -97,8 +102,12 @@ function updateUserData() {
                 throw new Error("Unauthorized. Redirecting to login.");
             });
         }
-        if (!response.ok) return response.json().then(data => { throw new Error(data.error || 'Failed to update profile'); });
-
+        return response.json().then(data => {
+            if (!response.ok) throw new Error(data.error || 'Failed to update profile');
+            return data;
+        });
+    })
+    .then(() => {
         navigateTo("/profile");
         alert('Profile updated successfully!');
     })

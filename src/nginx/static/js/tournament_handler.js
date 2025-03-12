@@ -40,7 +40,7 @@ export function joinTournament()
 
 
     lobby_socket.onopen = () => {
-        console.log("Tournament lobby connected");
+        // console.log("Tournament lobby connected");
         tournamentHeader.textContent = `Tournament: ${window.lobby_name}`;
         lobby_socket.send(JSON.stringify({
             action: 'player_joined',
@@ -73,7 +73,7 @@ export function joinTournament()
         }
         else if (data.type === 'enable_tournament_button')
         {
-          console.log("enabling button")
+          // console.log("enabling button")
             enableStartButton(start_tournament, 'start_tournament');
         }
         else if (data.type === 'disable_tournament_button')
@@ -109,13 +109,13 @@ export function joinTournament()
         }
         else if (data.type == 'start_1')
         {
-          console.log("start 1");
+          // console.log("start 1");
           disableStartButton(start_1);
           startTournamentGame(window.lobby_id + `game_1`, `game_1`, data.roles.p1 == name ? 'p1' : 'p2', data.roles, window.max_score, p1.textContent, p2.textContent, p3.textContent, p4.textContent, window.lobby_name);
         }
         else if (data.type == 'start_2')
         {
-          console.log("start 2");
+          // console.log("start 2");
           disableStartButton(start_2);
           startTournamentGame(window.lobby_id + `game_2`, `game_2`, data.roles.p1 == name ? 'p1' : 'p2', data.roles, window.max_score, p3.textContent, p4.textContent, p1.textContent, p2.textContent, window.lobby_name);
         }
@@ -170,7 +170,7 @@ export function joinTournament()
 } 
 
 function enableStartButton(start_button, action_type) {
-  console.log("Enabling start button:", start_button);
+  // console.log("Enabling start button:", start_button);
 
   start_button.classList.remove('disabled');
   start_button.classList.add('start_enabled');
@@ -179,7 +179,7 @@ function enableStartButton(start_button, action_type) {
 }
 
 function disableStartButton(start_button) {
-  console.log(`Disabling ${start_button}`);
+  // console.log(`Disabling ${start_button}`);
 
   start_button.classList.add('disabled');
   start_button.classList.remove('start_enabled'); 

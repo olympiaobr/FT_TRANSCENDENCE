@@ -26,6 +26,7 @@ from django.core.cache import cache
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.permissions import AllowAny
 from django.conf import settings
+import re
 
 
 logger = logging.getLogger('django')
@@ -57,34 +58,37 @@ def send_email_code(user, otp_code):
 	sender_email = settings.EMAIL_HOST_USER
 	send_mail(subject, message, "no-reply@example.com", [user.email])
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_view(request):
-	logger.info("Signup request received.")
-	username = request.data.get('username')
-	password = request.data.get('password')
-	email = request.data.get('email')
+    logger.info("Signup request received.")
 
-	if not username or not password or not email:
-		logger.error("Invalid signup data.")
-		return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+    username = request.data.get('username')
+    password = request.data.get('password')
+    email = request.data.get('email')
 
-	if User.objects.filter(username=username).exists():
-		logger.error(f"Username already exists: {username}")
-		return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
-	
-	if User.objects.filter(email=email).exists():
-		logger.error(f"Email already exists: {email}")
-		return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    if not username or not password or not email:
+        logger.error("Invalid signup data.")
+        return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
 
-	try:
-		user = User.objects.create_user(username=username, password=password, email=email)
-		logger.info(f"User created: {username} (ID: {user.id})")
-		return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
-	except IntegrityError as e:
-		logger.error(f"IntegrityError during signup: {e}")
-		return Response({"error": "An error occurred during signup."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if not re.match(r'^[a-zA-Z0-9]+$', username):
+        return Response({"error": "Username can only contain letters, numbers, and underscores."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if User.objects.filter(username=username).exists():
+        logger.error(f"Username already exists: {username}")
+        return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if User.objects.filter(email=email).exists():
+        logger.error(f"Email already exists: {email}")
+        return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.create_user(username=username, password=password, email=email)
+        logger.info(f"User created: {username} (ID: {user.id})")
+        return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+    except IntegrityError as e:
+        logger.error(f"IntegrityError during signup: {e}")
+        return Response({"error": "An error occurred during signup."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

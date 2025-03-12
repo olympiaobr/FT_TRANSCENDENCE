@@ -141,14 +141,14 @@ export function initGame3D(canvas) {
 
     // Load texture with error handling and logging
     const textureLoader = new THREE.TextureLoader();
-    console.log('Attempting to load texture from:', '/images/42_logo.png');
+    // console.log('Attempting to load texture from:', '/images/42_logo.png');
     
     let floor; // Declare floor variable at a higher scope
     
     const texture = textureLoader.load(
         '/images/42_logo.png',
         (loadedTexture) => {
-            console.log('Texture loaded successfully');
+            // console.log('Texture loaded successfully');
             loadedTexture.wrapS = THREE.RepeatWrapping;
             loadedTexture.wrapT = THREE.RepeatWrapping;
             loadedTexture.repeat.set(1, 1);
@@ -161,7 +161,7 @@ export function initGame3D(canvas) {
             }
         },
         (progress) => {
-            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+            // console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
         },
         (error) => {
             console.error('Error loading texture:', error);
@@ -800,7 +800,7 @@ export function cleanup() {
     leftInstructions = null;
     rightInstructions = null;
     
-    console.log("3D resources cleaned up");
+    // console.log("3D resources cleaned up");
 }
 
 function updateBallTrail() {

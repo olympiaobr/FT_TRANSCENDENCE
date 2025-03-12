@@ -16,7 +16,7 @@ def create_lobby(request):
         pac_pong = request.POST.get('pong-mode') == '1'
         mode = int(request.POST.get('mode'))
         cur_player = 0
-        if (pac_pong and mode is not 1):
+        if (pac_pong and mode != 1):
             mode = 3
         elif(tournament_mode):
             mode = 4

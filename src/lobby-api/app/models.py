@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import make_password, check_password
 
 class Lobby(models.Model):
     name = models.CharField(
-        max_length=100, 
+        max_length=15, 
         unique=True, 
         help_text="Unique name for the lobby. Acts as an identifier."
     )

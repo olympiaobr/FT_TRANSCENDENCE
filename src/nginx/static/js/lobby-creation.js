@@ -61,7 +61,7 @@ export function createLobby(event)
 {
   event.preventDefault();
   const formData = new FormData(document.getElementById('lobby-form'));
-  console.log(formData);
+  // console.log(formData);
   fetch('/lobby/create/', 
     {
       method: 'POST',
@@ -92,7 +92,7 @@ export function createLobby(event)
         navigateTo("/lobby")
     })
     .catch(error => {
-      console.log('Fetch error: ' + error);
+      // console.log('Fetch error: ' + error);
     }
   );
 }
@@ -110,13 +110,13 @@ export function lobbyFull(lobby_id)
         return false;
       if(response.error)
       {
-        console.log('Error: ' + response.error);
+        // console.log('Error: ' + response.error);
         return true ;
       }
       return response.lobby.current_player_count >= response.lobby.max_player_count;
     })
     .catch(error => {
-      console.log('Fetch error: ' + error);
+      // console.log('Fetch error: ' + error);
       navigateTo("/");
     }
   );
@@ -159,6 +159,6 @@ export function listLobbies()
       });
     })
     .catch(error => {
-      console.log('Error: ', error);
+      // console.log('Error: ', error);
     });
 } 

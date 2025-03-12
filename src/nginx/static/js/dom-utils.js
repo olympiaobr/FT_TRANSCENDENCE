@@ -44,7 +44,7 @@ export async function loadProfile() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log("Profile Loaded:", data);
+            // console.log("Profile Loaded:", data);
             navigateTo("/profile");
         } else {
             console.error('Unexpected error:', response.status);

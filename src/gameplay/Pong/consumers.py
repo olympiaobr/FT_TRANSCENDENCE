@@ -203,23 +203,23 @@ class PongGame(AsyncWebsocketConsumer):
         	    					},
         	    					cookies=self.cookies,
 									)
-				elif 'game_3' in self.lobby_id:
-					url = f"http://userdata:8004/user-api/addgame/"
-					async with httpx.AsyncClient() as client:
-						response = await client.post(url, 
-									json={'gameMode': 'four-player-tournament',
-					   					'players':[self.p1, self.p2, self.p3, self.p4],
-										'score': [self.game_session.Lscore, self.game_session.Rscore, 0, 0],
-										'lobbyName': self.lobby_name,
-					   					},
-        	    					headers={
-        	    					    'Content-Type': 'application/json',
-                	        			'Authorization': f'Bearer {self.token}',
-        	    					    'X-CSRFToken': self.token,
-										'Microservice-Token' : getattr(settings, "MICROSERVICE_SECRET_TOKEN", None)
-        	    					},
-        	    					cookies=self.cookies,
-									)
+				# elif 'game_3' in self.lobby_id:
+				# 	url = f"http://userdata:8004/user-api/addgame/"
+				# 	async with httpx.AsyncClient() as client:
+				# 		response = await client.post(url, 
+				# 					json={'gameMode': 'four-player-tournament',
+				# 	   					'players':[self.p1, self.p2, self.p3, self.p4],
+				# 						'score': [self.game_session.Lscore, self.game_session.Rscore, 0, 0],
+				# 						'lobbyName': self.lobby_name,
+				# 	   					},
+        	    # 					headers={
+        	    # 					    'Content-Type': 'application/json',
+                # 	        			'Authorization': f'Bearer {self.token}',
+        	    # 					    'X-CSRFToken': self.token,
+				# 						'Microservice-Token' : getattr(settings, "MICROSERVICE_SECRET_TOKEN", None)
+        	    # 					},
+        	    # 					cookies=self.cookies,
+				# 					)
 			else:
 				await self.channel_layer.group_send(
         			self.lobby_group_name,

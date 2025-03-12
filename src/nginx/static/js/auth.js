@@ -26,7 +26,7 @@ export async function postAPI(url, data, authRequired = false) {
         }
     }
 
-    console.log("DEBUG: Sending request to", url, "with data:", data);
+    // console.log("DEBUG: Sending request to", url, "with data:", data);
 
     let response = await fetch(url, {
         method: 'POST',
@@ -73,7 +73,7 @@ export async function login(event) {
             saveTokens(response.tokens);
             window.location.href = '/';
         } else {
-            alert(response.error || 'Login failed');
+            alert('Login failed');
         }
     } catch (error) {
         console.error('Login error:', error);
@@ -86,7 +86,7 @@ export async function verify2FA(event, username) {
     const formData = new FormData(event.target);
     const otp = formData.get('otp');
 
-    console.log("DEBUG: Submitting OTP for verification", otp, "Username:", username);
+    // console.log("DEBUG: Submitting OTP for verification", otp, "Username:", username);
 
     try {
         const response = await postAPI('/user-api/2fa/verify/', { otp, username });
@@ -96,7 +96,7 @@ export async function verify2FA(event, username) {
             alert('2FA verification successful!');
             window.location.href = '/';
         } else {
-            alert(response.error || '2FA verification failed');
+            alert('2FA verification failed');
         }
     } catch (error) {
         console.error('2FA verification error:', error);
@@ -114,7 +114,7 @@ export async function resendOTP(event) {
         return;
     }
 
-    console.log("🛠 DEBUG: Sending OTP request for username:", username);
+    // console.log("🛠 DEBUG: Sending OTP request for username:", username);
 
     try {
         const response = await fetch('/user-api/2fa/resend-otp/', {
@@ -127,7 +127,7 @@ export async function resendOTP(event) {
             body: JSON.stringify({ username })
         });
 
-        console.log("🛠 DEBUG: Resend OTP Response Status:", response.status);
+        // console.log("🛠 DEBUG: Resend OTP Response Status:", response.status);
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -138,7 +138,7 @@ export async function resendOTP(event) {
         alert('✅ A new OTP has been sent to your email.');
     } catch (error) {
         console.error('🚨 Resend OTP error:', error);
-        alert(error.message || 'Failed to resend OTP.');
+        alert('Failed to resend OTP.');
     }
 }
 
@@ -169,13 +169,19 @@ export async function signup(event) {
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData.entries());
 
+    const usernameRegex = /^[a-zA-Z0-9]+$/;
+    if (!usernameRegex.test(data.username)) {
+        alert('Username can only contain letters and numbers.');
+        return;
+    }
+
     try {
         const response = await postAPI('/user-api/signup/', data, false);
         if (response.message === 'User created successfully') {
-            console.log("Sign up success");
+            // console.log("Sign up success");
             window.location.href = '/';
         } else {
-            alert(response.error || 'Signup failed');
+            alert('Not the right format - Signup failed');
         }
     } catch (error) {
         console.error('Signup error:', error);

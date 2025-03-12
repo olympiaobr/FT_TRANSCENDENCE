@@ -65,7 +65,14 @@ class GameDataSerializer(serializers.ModelSerializer):
 		gameMode = validated_data.get('gameMode')
 		if gameMode == 'four-player-tournament':
 			score[2], score[3] = -1, -1
-		processed_score = {player.user.username : points for player, points in zip(profiles, score)}	
+		
+		if gameMode == 'pac-pong':
+			processed_score = {'left': {profiles[0].user.username: score[0]}, 
+					  'right': {profiles[1].user.username:  score[1]}, 
+					  'pac': {profiles[2].user.username: score[2]}}
+		else:
+			processed_score = {player.user.username : points for player, points in zip(profiles, score)}
+		logger.info(str(processed_score))	
 		game = GameData.objects.create(**validated_data, score=processed_score)
 		game.players.set(profiles)
 
@@ -94,6 +101,7 @@ class GameDataSerializer(serializers.ModelSerializer):
 	
 	def to_representation(self, instance):
 		representation = super().to_representation(instance)
+		logger.info(str(representation))
 		representation['players'] = [profile.user.username for profile in instance.players.all()]
 		return representation
 

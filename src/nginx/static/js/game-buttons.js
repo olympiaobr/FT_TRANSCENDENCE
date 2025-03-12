@@ -31,7 +31,7 @@ export function toggle3dButton()
                 game3dModule.resizeRenderer(canvas3d.clientWidth, canvas3d.clientHeight);
                 game3dModule.animate();
                 
-                console.log("3D game initialized successfully");
+                // console.log("3D game initialized successfully");
             } else {
                 console.error("gameSettings not available");
             }

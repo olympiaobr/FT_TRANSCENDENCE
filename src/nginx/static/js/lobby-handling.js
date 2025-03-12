@@ -57,12 +57,12 @@ export function joinLobby()
         p2.style.display = 'flex';
         p1.addEventListener('click', () => selectPlayer('p1', roles.p1));
         p2.addEventListener('click', () => selectPlayer('p2', roles.p2));
-        }
         if (window.pac_pong == 1)
-        {
-          p3.style.display = 'flex';
-          p3.addEventListener('click', () => selectPlayer('p3', roles.p3));
-        }
+			{
+				p3.style.display = 'flex';
+				p3.addEventListener('click', () => selectPlayer('p3', roles.p3));
+			}
+		}
     };
   
     lobby_socket.onmessage = (e) => {
@@ -110,7 +110,11 @@ export function joinLobby()
       }
     };
     
-    lobby_socket.onerror = console.error;
+    lobby_socket.onerror = () =>
+		{
+			window.location.href = '/';
+			customAlert("Cannot join.");
+		};
     lobby_socket.onclose = (event) => {
       if (event.code == 403) {
         navigateTo("/");

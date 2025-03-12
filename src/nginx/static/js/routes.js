@@ -51,16 +51,16 @@ export const Profile = () => `
             <div id="game-tabs">
                 <button class="game-tab active" data-game="two-player-pong">Pong</button>
                 <button class="game-tab" data-game="pac-pong">PacPong</button>
-                <button class="game-tab" data-game="four-player-tournament">Tournament</button>
-            </div>
-            <table id="match-history-table">
+				</div>
+				<table id="match-history-table">
                 <thead id="match-history-head">
-                    <!-- Table headers will be inserted dynamically -->
+				<!-- Table headers will be inserted dynamically -->
                 </thead>
                 <tbody id="match-history-body"></tbody>
-            </table>
-        </section>
-      </div>`;
+				</table>
+				</section>
+				</div>`;
+                // <button class="game-tab" data-game="four-player-tournament">Tournament</button>
 
 export const UpdateProfile = () => 
   `<form id="update-form">

@@ -10,6 +10,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.settings import api_settings
+import re
+from rest_framework.exceptions import ValidationError
 
 logger = logging.getLogger('django')
 
@@ -26,6 +28,29 @@ class ProfileSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True)
     online_status = serializers.BooleanField(read_only=True)
+
+    def validate_display_name(self, value):
+        if not re.match(r'^[a-zA-Z0-9]+$', value):
+            raise ValidationError("Display name can only contain letters, numbers, and spaces.")
+        return value
+
+    def update(self, instance, validated_data):
+        if 'display_name' in validated_data:
+            validated_data['display_name'] = self.validate_display_name(validated_data['display_name'])
+
+        instance.display_name = validated_data.get('display_name', instance.display_name)
+
+        avatar = validated_data.get('avatar')
+        if avatar:
+            instance.avatar.save(avatar.name, avatar)
+
+        password = validated_data.pop('password', None)
+        if password:
+            instance.user.set_password(password)
+            instance.user.save()
+
+        instance.save()
+        return instance
 
     class Meta:
         model = Profile
